@@ -549,7 +549,7 @@ export const Pages: CollectionConfig<'pages'> = {
               label: 'Buy A Home Page Settings',
               type: 'group',
               admin: {
-                condition: (data) => data?.slug === 'buy-a-home',
+                condition: () => false,
               },
               fields: [
                 {
@@ -619,7 +619,7 @@ export const Pages: CollectionConfig<'pages'> = {
               label: 'Other Inquiries Page Settings',
               type: 'group',
               admin: {
-                condition: (data) => data?.slug === 'other-inquiries',
+                condition: () => false,
               },
               fields: [
                 {
@@ -689,7 +689,7 @@ export const Pages: CollectionConfig<'pages'> = {
               label: 'Trade Inquiry Page Settings',
               type: 'group',
               admin: {
-                condition: (data) => data?.slug === 'trade-inquiry',
+                condition: () => false,
               },
               fields: [
                 {
