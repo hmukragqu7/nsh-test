@@ -586,35 +586,11 @@ export const Pages: CollectionConfig<'pages'> = {
                 {
                   name: 'additionalContent',
                   type: 'richText',
-                  label: 'In-Between Custom Content (Text, Images, Media, Links)',
+                  label: 'In-Between Custom Content (Text, Images, Media, Links, Custom Blocks)',
                   editor: lexicalEditor({
                     features: ({ rootFeatures }) => [
                       ...rootFeatures,
-                      HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                      LinkFeature({
-                        fields: [
-                          {
-                            name: 'rel',
-                            label: 'Rel Attribute',
-                            type: 'select',
-                            hasMany: true,
-                            options: ['noopener', 'noreferrer', 'nofollow'],
-                          },
-                        ],
-                      }),
-                      UploadFeature({
-                        collections: {
-                          media: {
-                            fields: [
-                              {
-                                name: 'caption',
-                                type: 'text',
-                                label: 'Caption',
-                              },
-                            ],
-                          },
-                        },
-                      }),
+                      BlocksFeature({ blocks: [Banner, Code, MediaBlock, CallToAction, InquiryHero] }),
                     ],
                   }),
                 },
@@ -680,35 +656,11 @@ export const Pages: CollectionConfig<'pages'> = {
                 {
                   name: 'additionalContent',
                   type: 'richText',
-                  label: 'In-Between Custom Content (Text, Images, Media, Links)',
+                  label: 'In-Between Custom Content (Text, Images, Media, Links, Custom Blocks)',
                   editor: lexicalEditor({
                     features: ({ rootFeatures }) => [
                       ...rootFeatures,
-                      HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                      LinkFeature({
-                        fields: [
-                          {
-                            name: 'rel',
-                            label: 'Rel Attribute',
-                            type: 'select',
-                            hasMany: true,
-                            options: ['noopener', 'noreferrer', 'nofollow'],
-                          },
-                        ],
-                      }),
-                      UploadFeature({
-                        collections: {
-                          media: {
-                            fields: [
-                              {
-                                name: 'caption',
-                                type: 'text',
-                                label: 'Caption',
-                              },
-                            ],
-                          },
-                        },
-                      }),
+                      BlocksFeature({ blocks: [Banner, Code, MediaBlock, CallToAction, InquiryHero] }),
                     ],
                   }),
                 },
@@ -774,35 +726,11 @@ export const Pages: CollectionConfig<'pages'> = {
                 {
                   name: 'additionalContent',
                   type: 'richText',
-                  label: 'In-Between Custom Content (Text, Images, Media, Links)',
+                  label: 'In-Between Custom Content (Text, Images, Media, Links, Custom Blocks)',
                   editor: lexicalEditor({
                     features: ({ rootFeatures }) => [
                       ...rootFeatures,
-                      HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                      LinkFeature({
-                        fields: [
-                          {
-                            name: 'rel',
-                            label: 'Rel Attribute',
-                            type: 'select',
-                            hasMany: true,
-                            options: ['noopener', 'noreferrer', 'nofollow'],
-                          },
-                        ],
-                      }),
-                      UploadFeature({
-                        collections: {
-                          media: {
-                            fields: [
-                              {
-                                name: 'caption',
-                                type: 'text',
-                                label: 'Caption',
-                              },
-                            ],
-                          },
-                        },
-                      }),
+                      BlocksFeature({ blocks: [Banner, Code, MediaBlock, CallToAction, InquiryHero] }),
                     ],
                   }),
                 },
@@ -852,6 +780,17 @@ export const Pages: CollectionConfig<'pages'> = {
                   label: 'Thank You Message',
                   defaultValue:
                     'We have received your message and will get back to you shortly.',
+                },
+                {
+                  name: 'additionalContent',
+                  type: 'richText',
+                  label: 'In-Between Custom Content (Text, Images, Media, Links, Custom Blocks)',
+                  editor: lexicalEditor({
+                    features: ({ rootFeatures }) => [
+                      ...rootFeatures,
+                      BlocksFeature({ blocks: [Banner, Code, MediaBlock, CallToAction, InquiryHero] }),
+                    ],
+                  }),
                 },
                 {
                   name: 'buttonText',

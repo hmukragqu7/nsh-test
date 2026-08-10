@@ -2,6 +2,8 @@ import React from 'react'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import RichText from '@/components/RichText'
+import { RenderBlocks } from '@/blocks/RenderBlocks'
 
 export const metadata = {
   title: 'Thank You - Novel Signature Homes',
@@ -35,14 +37,11 @@ export default async function ThankYouPage() {
       style={{
         backgroundColor: '#ffffff',
         minHeight: '80vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
         padding: '6rem 1.5rem',
         color: '#1a1a1a',
       }}
     >
-      <div style={{ maxWidth: '600px', width: '100%', textAlign: 'center' }}>
+      <div style={{ maxWidth: '600px', width: '100%', margin: '0 auto', textAlign: 'center' }}>
         <h1
           style={{
             fontFamily: "'Cormorant Garamond', Georgia, serif",
@@ -80,6 +79,12 @@ export default async function ThankYouPage() {
           {message}
         </p>
 
+        {cmsData?.additionalContent && (
+          <div style={{ marginBottom: '2.5rem', textAlign: 'left' }}>
+            <RichText data={cmsData.additionalContent} />
+          </div>
+        )}
+
         <Link
           href={buttonLink}
           style={{
@@ -98,6 +103,12 @@ export default async function ThankYouPage() {
           {buttonText}
         </Link>
       </div>
+
+      {pageDoc?.layout && pageDoc.layout.length > 0 && (
+        <div style={{ marginTop: '4rem' }}>
+          <RenderBlocks blocks={pageDoc.layout} />
+        </div>
+      )}
     </div>
   )
 }

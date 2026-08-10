@@ -1,20 +1,62 @@
 import type { TextFieldSingleValidation } from 'payload'
 import {
+  AlignFeature,
+  BlockquoteFeature,
   BoldFeature,
+  ChecklistFeature,
+  FixedToolbarFeature,
+  HeadingFeature,
+  HorizontalRuleFeature,
+  IndentFeature,
+  InlineCodeFeature,
+  InlineToolbarFeature,
   ItalicFeature,
   LinkFeature,
+  OrderedListFeature,
   ParagraphFeature,
-  lexicalEditor,
+  StrikethroughFeature,
+  SubscriptFeature,
+  SuperscriptFeature,
   UnderlineFeature,
+  UnorderedListFeature,
+  UploadFeature,
+  lexicalEditor,
   type LinkFields,
 } from '@payloadcms/richtext-lexical'
 
 export const defaultLexical = lexicalEditor({
   features: [
     ParagraphFeature(),
-    UnderlineFeature(),
+    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] }),
+    AlignFeature(),
+    IndentFeature(),
     BoldFeature(),
     ItalicFeature(),
+    UnderlineFeature(),
+    StrikethroughFeature(),
+    SubscriptFeature(),
+    SuperscriptFeature(),
+    InlineCodeFeature(),
+    BlockquoteFeature(),
+    UnorderedListFeature(),
+    OrderedListFeature(),
+    ChecklistFeature(),
+    HorizontalRuleFeature(),
+    FixedToolbarFeature(),
+    InlineToolbarFeature(),
+    UploadFeature({
+      collections: {
+        media: {
+          fields: [
+            {
+              name: 'caption',
+              type: 'text',
+              label: 'Caption',
+            },
+          ],
+        },
+      },
+    }),
     LinkFeature({
       enabledCollections: ['pages', 'posts', 'blogs', 'properties'],
       fields: ({ defaultFields }) => {
@@ -34,8 +76,8 @@ export const defaultLexical = lexicalEditor({
             label: ({ t }) => t('fields:enterURL'),
             required: true,
             validate: ((value, options) => {
-              if ((options?.siblingData as LinkFields)?.linkType === 'internal') {
-                return true // no validation needed, as no url should exist for internal links
+              if ((options?.siblingData as LinkFields)?.linkType === 'linkType' || (options?.siblingData as LinkFields)?.linkType === 'internal') {
+                return true
               }
               return value ? true : 'URL is required'
             }) as TextFieldSingleValidation,

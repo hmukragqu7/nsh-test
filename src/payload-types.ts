@@ -439,6 +439,21 @@ export interface Page {
     title?: string | null;
     subheading?: string | null;
     message?: string | null;
+    additionalContent?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
     buttonText?: string | null;
     buttonLink?: string | null;
   };
@@ -1779,6 +1794,7 @@ export interface PagesSelect<T extends boolean = true> {
         title?: T;
         subheading?: T;
         message?: T;
+        additionalContent?: T;
         buttonText?: T;
         buttonLink?: T;
       };
