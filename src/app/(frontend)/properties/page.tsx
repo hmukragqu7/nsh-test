@@ -140,7 +140,7 @@ export default async function PropertiesIndexPage() {
           color: #000000ff;
           line-height: 1.85;
           margin: 0 0 2.5rem;
-          max-width: 1100px;
+          // max-width: 1100px;
           font-weight: 400;
         }
         @media (min-width: 640px) {
