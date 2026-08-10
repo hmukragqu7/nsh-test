@@ -705,21 +705,6 @@ export interface InquiryHeroBlock {
   description?: string | null;
   image?: (number | null) | Media;
   imageUrl?: string | null;
-  additionalContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
   selectedForm?: (number | null) | Form;
   formAction?: string | null;
   buttonText?: string | null;
@@ -1822,7 +1807,6 @@ export interface InquiryHeroBlockSelect<T extends boolean = true> {
   description?: T;
   image?: T;
   imageUrl?: T;
-  additionalContent?: T;
   selectedForm?: T;
   formAction?: T;
   buttonText?: T;

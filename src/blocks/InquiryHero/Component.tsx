@@ -1,5 +1,4 @@
 import React from 'react'
-import RichText from '@/components/RichText'
 
 export type InquiryHeroBlockProps = {
   title?: string
@@ -7,7 +6,6 @@ export type InquiryHeroBlockProps = {
   description?: string
   image?: any
   imageUrl?: string
-  additionalContent?: any
   formAction?: string
   buttonText?: string
 }
@@ -19,7 +17,6 @@ export const InquiryHeroBlock: React.FC<InquiryHeroBlockProps> = (props) => {
     description,
     image,
     imageUrl,
-    additionalContent,
     formAction = 'https://formspree.io/f/xbjnqkyv',
     buttonText = 'Submit',
   } = props
@@ -118,14 +115,7 @@ export const InquiryHeroBlock: React.FC<InquiryHeroBlockProps> = (props) => {
               </p>
             )}
 
-            {/* In-between Rich Text */}
-            {additionalContent &&
-              typeof additionalContent === 'object' &&
-              additionalContent.root && (
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <RichText data={additionalContent} enableGutter={false} />
-                </div>
-              )}
+
 
             {/* Form */}
             <form

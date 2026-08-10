@@ -42,41 +42,7 @@ export const InquiryHero: Block = {
       type: 'text',
       label: 'Image URL Fallback',
     },
-    {
-      name: 'additionalContent',
-      type: 'richText',
-      label: 'In-Between Content (Text, Media, Links)',
-      editor: lexicalEditor({
-        features: ({ rootFeatures }) => [
-          ...rootFeatures,
-          HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-          LinkFeature({
-            fields: [
-              {
-                name: 'rel',
-                label: 'Rel Attribute',
-                type: 'select',
-                hasMany: true,
-                options: ['noopener', 'noreferrer', 'nofollow'],
-              },
-            ],
-          }),
-          UploadFeature({
-            collections: {
-              media: {
-                fields: [
-                  {
-                    name: 'caption',
-                    type: 'text',
-                    label: 'Caption',
-                  },
-                ],
-              },
-            },
-          }),
-        ],
-      }),
-    },
+
     {
       name: 'selectedForm',
       type: 'relationship',
