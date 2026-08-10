@@ -299,8 +299,9 @@ export default async function BuyAHomePage() {
               </div>
             </form>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
+    )}
 
       {/* DYNAMIC CMS LAYOUT BLOCKS */}
       {layoutBlocks && layoutBlocks.length > 0 && (

@@ -332,8 +332,9 @@ export default async function TradeInquiryPage() {
               </div>
             </form>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
+    )}
 
       {/* DYNAMIC CMS LAYOUT BLOCKS */}
       {layoutBlocks && layoutBlocks.length > 0 && (
