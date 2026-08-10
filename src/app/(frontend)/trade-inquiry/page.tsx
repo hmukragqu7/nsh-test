@@ -41,19 +41,24 @@ export default async function TradeInquiryPage() {
   const formAction = cmsData.formAction || 'https://formspree.io/f/xbjnqkyv'
   const buttonText = cmsData.buttonText || 'Submit'
 
+  const hasInquiryHeroInBlocks =
+    Array.isArray(layoutBlocks) &&
+    layoutBlocks.some((b: any) => b.blockType === 'inquiryHero')
+
   return (
     <div style={{ backgroundColor: '#ffffff', minHeight: '100vh', color: '#1a1a1a' }}>
-      {/* MAIN SPLIT SECTION */}
-      <section
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          minHeight: 'calc(100vh - 80px)',
-          marginTop: '80px',
-          width: '100%',
-        }}
-        className="nsh-trade-inquiry-section"
-      >
+      {/* MAIN SPLIT SECTION (rendered unless replaced by a dragged inquiryHero block) */}
+      {!hasInquiryHeroInBlocks && (
+        <section
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            minHeight: 'calc(100vh - 80px)',
+            marginTop: '80px',
+            width: '100%',
+          }}
+          className="nsh-trade-inquiry-section"
+        >
         {/* LEFT COLUMN: FULL-HEIGHT LIVING ROOM IMAGE */}
         <div
           style={{
@@ -327,11 +332,15 @@ export default async function TradeInquiryPage() {
               </div>
             </form>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* DYNAMIC CMS LAYOUT BLOCKS */}
-      {layoutBlocks && layoutBlocks.length > 0 && <RenderBlocks blocks={layoutBlocks} />}
+      {layoutBlocks && layoutBlocks.length > 0 && (
+        <div style={{ marginTop: hasInquiryHeroInBlocks ? '80px' : '0px' }}>
+          <RenderBlocks blocks={layoutBlocks} />
+        </div>
+      )}
 
       <style>{`
         .nsh-trade-inquiry-btn:hover {
