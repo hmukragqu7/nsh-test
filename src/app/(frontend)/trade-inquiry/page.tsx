@@ -68,7 +68,7 @@ export default async function TradeInquiryPage() {
             backgroundImage: `url("${heroImage}")`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            minHeight: '500px',
+            minHeight: 'calc(100vh - 80px)',
           }}
           className="nsh-trade-inquiry-image"
         />
@@ -84,6 +84,7 @@ export default async function TradeInquiryPage() {
             justifyContent: 'center',
             padding: '4rem 5rem 5rem 4rem',
             boxSizing: 'border-box',
+            minHeight: 'calc(100vh - 80px)',
           }}
           className="nsh-trade-inquiry-content"
         >

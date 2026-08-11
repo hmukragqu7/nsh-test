@@ -68,7 +68,7 @@ export default async function OtherInquiriesPage() {
               backgroundImage: `url("${heroImage}")`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              minHeight: '500px',
+              minHeight: 'calc(100vh - 80px)',
             }}
             className="nsh-other-inquiries-image"
           />
@@ -84,6 +84,7 @@ export default async function OtherInquiriesPage() {
               justifyContent: 'center',
               padding: '4rem 5rem 5rem 4rem',
               boxSizing: 'border-box',
+              minHeight: 'calc(100vh - 80px)',
             }}
             className="nsh-other-inquiries-content"
           >

@@ -32,7 +32,7 @@ export const InquiryHeroBlock: React.FC<InquiryHeroBlockProps> = (props) => {
         style={{
           display: 'flex',
           flexDirection: 'row',
-          minHeight: '600px',
+          minHeight: 'calc(100vh - 80px)',
           width: '100%',
         }}
         className="nsh-inquiry-hero-block"
@@ -46,7 +46,7 @@ export const InquiryHeroBlock: React.FC<InquiryHeroBlockProps> = (props) => {
             backgroundImage: `url("${heroImgUrl}")`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            minHeight: '400px',
+            minHeight: 'calc(100vh - 80px)',
           }}
           className="nsh-inquiry-hero-img"
         />
@@ -62,6 +62,7 @@ export const InquiryHeroBlock: React.FC<InquiryHeroBlockProps> = (props) => {
             justifyContent: 'center',
             padding: '3rem 4rem 4rem 3rem',
             boxSizing: 'border-box',
+            minHeight: 'calc(100vh - 80px)',
           }}
           className="nsh-inquiry-hero-content"
         >
