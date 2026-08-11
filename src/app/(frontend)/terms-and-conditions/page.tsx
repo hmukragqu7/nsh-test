@@ -6,46 +6,46 @@ import RichText from '@/components/RichText'
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 
 export const metadata = {
-  title: 'Privacy Policy - Novel Signature Homes',
+  title: 'Terms and Conditions - Novel Signature Homes',
   description:
-    'Privacy Policy Effective as of April 5, 2025. Learn how Novel Signature Homes collects, uses, discloses, and protects your personal information.',
+    'Terms and Conditions of Use effective as of April 5, 2025. Governs access to and use of novelsignaturehomes.com.',
 }
 
-export default async function PrivacyPolicyPage() {
+export default async function TermsAndConditionsPage() {
   const payload = await getPayload({ config: configPromise })
 
   const pagesResult = await payload.find({
     collection: 'pages',
     where: {
       slug: {
-        equals: 'privacy-policy',
+        equals: 'terms-and-conditions',
       },
     },
     limit: 1,
   })
 
   const pageDoc = pagesResult.docs?.[0] as any
-  const cmsData = pageDoc?.privacyPolicyPage || {}
+  const cmsData = pageDoc?.termsAndConditionsPage || {}
 
-  const pageTitle = cmsData.title || 'Privacy Policy'
+  const pageTitle = cmsData.title || pageDoc?.title || 'Terms and Conditions'
+  const subheading = cmsData.subheading || 'Terms and condition'
   const effectiveDate = cmsData.effectiveDate || 'Effective as of April 5, 2025'
   const cmsSections = cmsData.sections || []
   const layoutBlocks = pageDoc?.layout || []
 
   return (
     <div style={{ backgroundColor: '#ffffff', minHeight: '100vh', color: '#1a1a1a' }}>
-      {/* HEADER / HERO SECTION */}
       <section
         style={{
           paddingTop: 'clamp(6rem, 10vh, 8.5rem)',
-          paddingBottom: '2.5rem',
+          paddingBottom: '4rem',
           paddingLeft: '1.5rem',
           paddingRight: '1.5rem',
           backgroundColor: '#ffffff',
         }}
       >
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          {/* Main H1 Title */}
+          {/* Main H1 Heading */}
           <h1
             style={{
               fontFamily: "'Cormorant Garamond', Georgia, serif",
@@ -61,7 +61,7 @@ export default async function PrivacyPolicyPage() {
             {pageTitle}
           </h1>
 
-          {/* Subheading: Privacy Policy H2 */}
+          {/* Subheading */}
           <h2
             style={{
               fontFamily: "'Cormorant Garamond', Georgia, serif",
@@ -72,7 +72,7 @@ export default async function PrivacyPolicyPage() {
               marginBottom: '0.75rem',
             }}
           >
-            {pageTitle}
+            {subheading}
           </h2>
 
           {/* Effective Date */}
@@ -88,7 +88,7 @@ export default async function PrivacyPolicyPage() {
             {effectiveDate}
           </p>
 
-          {/* POLICY CONTENT BODY */}
+          {/* POLICY CONTENT BODY FROM CMS */}
           <div
             style={{
               fontFamily: "'Montserrat', sans-serif",
@@ -107,10 +107,10 @@ export default async function PrivacyPolicyPage() {
                   <h2
                     style={{
                       fontFamily: "'Cormorant Garamond', Georgia, serif",
-                      fontSize: '1.75rem',
-                      fontWeight: 600,
+                      fontSize: '2.1875rem',
+                      fontWeight: 500,
                       color: '#1a1a1a',
-                      marginBottom: '1rem',
+                      marginBottom: '1.25rem',
                     }}
                   >
                     {sec.heading}

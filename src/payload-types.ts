@@ -360,6 +360,32 @@ export interface Page {
         }[]
       | null;
   };
+  termsAndConditionsPage?: {
+    title?: string | null;
+    subheading?: string | null;
+    effectiveDate?: string | null;
+    sections?:
+      | {
+          heading: string;
+          content?: {
+            root: {
+              type: string;
+              children: {
+                type: any;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
+              version: number;
+            };
+            [k: string]: unknown;
+          } | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
   buyAHomePage?: {
     title?: string | null;
     subheading?: string | null;
@@ -1725,6 +1751,20 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         title?: T;
+        effectiveDate?: T;
+        sections?:
+          | T
+          | {
+              heading?: T;
+              content?: T;
+              id?: T;
+            };
+      };
+  termsAndConditionsPage?:
+    | T
+    | {
+        title?: T;
+        subheading?: T;
         effectiveDate?: T;
         sections?:
           | T

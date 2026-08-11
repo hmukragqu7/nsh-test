@@ -91,7 +91,6 @@ async function seedOtherPagesContent() {
         collection: 'pages',
         context: { disableRevalidate: true },
         data: {
-          title: pageItem.title,
           slug: pageItem.slug,
           _status: 'published',
           ...pageItem.data,

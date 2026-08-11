@@ -270,7 +270,7 @@ export async function Footer() {
             Privacy Policy
           </Link>{' '}
           <Link
-            href="/terms"
+            href="/terms-and-conditions"
             className="text-gray-400 hover:text-white transition-colors duration-200"
             style={{ textDecoration: 'underline', marginLeft: '8px' }}
           >

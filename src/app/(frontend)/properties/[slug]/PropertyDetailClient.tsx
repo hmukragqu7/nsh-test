@@ -1348,31 +1348,43 @@ export default function PropertyDetailClient({
               {/* Accordion List */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 {/* 1. Property Details Accordion */}
-                <div style={{ border: '1px solid #333333', backgroundColor: '#1f1f1f' }}>
+                <div style={{ border: '1px solid #dfcbb6', backgroundColor: '#181818', marginBottom: '1rem' }}>
                   <button
                     type="button"
                     onClick={() => toggleAccordion('propertyDetails')}
                     style={{
                       width: '100%',
-                      padding: '1.5rem 2rem',
+                      padding: '1.25rem 1.75rem',
                       backgroundColor: 'transparent',
                       border: 'none',
-                      color: '#ffffff',
+                      color: '#dfcbb6',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       cursor: 'pointer',
                       fontFamily: "'Montserrat', sans-serif",
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      letterSpacing: '1px',
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      letterSpacing: '1.5px',
                       textTransform: 'uppercase',
                     }}
                   >
                     <span>PROPERTY DETAILS</span>
-                    <span style={{ fontSize: '1.2rem' }}>
-                      {openAccordions.propertyDetails ? '▲' : '▼'}
-                    </span>
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      style={{
+                        transform: openAccordions.propertyDetails ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.25s ease',
+                        color: '#dfcbb6',
+                      }}
+                    >
+                      <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </button>
 
                   {openAccordions.propertyDetails && (
@@ -1467,31 +1479,43 @@ export default function PropertyDetailClient({
                 </div>
 
                 {/* 2. Beds & Baths Accordion */}
-                <div style={{ border: '1px solid #333333', backgroundColor: '#1f1f1f' }}>
+                <div style={{ border: '1px solid #dfcbb6', backgroundColor: '#181818', marginBottom: '1rem' }}>
                   <button
                     type="button"
                     onClick={() => toggleAccordion('bedsAndBaths')}
                     style={{
                       width: '100%',
-                      padding: '1.5rem 2rem',
+                      padding: '1.25rem 1.75rem',
                       backgroundColor: 'transparent',
                       border: 'none',
-                      color: '#ffffff',
+                      color: '#dfcbb6',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       cursor: 'pointer',
                       fontFamily: "'Montserrat', sans-serif",
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      letterSpacing: '1px',
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      letterSpacing: '1.5px',
                       textTransform: 'uppercase',
                     }}
                   >
                     <span>BEDS & BATHS</span>
-                    <span style={{ fontSize: '1.2rem' }}>
-                      {openAccordions.bedsAndBaths ? '▲' : '▼'}
-                    </span>
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      style={{
+                        transform: openAccordions.bedsAndBaths ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.25s ease',
+                        color: '#dfcbb6',
+                      }}
+                    >
+                      <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </button>
 
                   {openAccordions.bedsAndBaths && (
@@ -1564,31 +1588,43 @@ export default function PropertyDetailClient({
                 </div>
 
                 {/* 3. Interior Features Accordion */}
-                <div style={{ border: '1px solid #333333', backgroundColor: '#1f1f1f' }}>
+                <div style={{ border: '1px solid #dfcbb6', backgroundColor: '#181818', marginBottom: '1rem' }}>
                   <button
                     type="button"
                     onClick={() => toggleAccordion('interiorFeatures')}
                     style={{
                       width: '100%',
-                      padding: '1.5rem 2rem',
+                      padding: '1.25rem 1.75rem',
                       backgroundColor: 'transparent',
                       border: 'none',
-                      color: '#ffffff',
+                      color: '#dfcbb6',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       cursor: 'pointer',
                       fontFamily: "'Montserrat', sans-serif",
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      letterSpacing: '1px',
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      letterSpacing: '1.5px',
                       textTransform: 'uppercase',
                     }}
                   >
                     <span>INTERIOR FEATURES</span>
-                    <span style={{ fontSize: '1.2rem' }}>
-                      {openAccordions.interiorFeatures ? '▲' : '▼'}
-                    </span>
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      style={{
+                        transform: openAccordions.interiorFeatures ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.25s ease',
+                        color: '#dfcbb6',
+                      }}
+                    >
+                      <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </button>
 
                   {openAccordions.interiorFeatures && (
@@ -1682,31 +1718,43 @@ export default function PropertyDetailClient({
                 </div>
 
                 {/* 4. Exterior Features Accordion */}
-                <div style={{ border: '1px solid #333333', backgroundColor: '#1f1f1f' }}>
+                <div style={{ border: '1px solid #dfcbb6', backgroundColor: '#181818', marginBottom: '1rem' }}>
                   <button
                     type="button"
                     onClick={() => toggleAccordion('exteriorFeatures')}
                     style={{
                       width: '100%',
-                      padding: '1.5rem 2rem',
+                      padding: '1.25rem 1.75rem',
                       backgroundColor: 'transparent',
                       border: 'none',
-                      color: '#ffffff',
+                      color: '#dfcbb6',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       cursor: 'pointer',
                       fontFamily: "'Montserrat', sans-serif",
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      letterSpacing: '1px',
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      letterSpacing: '1.5px',
                       textTransform: 'uppercase',
                     }}
                   >
                     <span>EXTERIOR FEATURES</span>
-                    <span style={{ fontSize: '1.2rem' }}>
-                      {openAccordions.exteriorFeatures ? '▲' : '▼'}
-                    </span>
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      style={{
+                        transform: openAccordions.exteriorFeatures ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.25s ease',
+                        color: '#dfcbb6',
+                      }}
+                    >
+                      <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </button>
 
                   {openAccordions.exteriorFeatures && (

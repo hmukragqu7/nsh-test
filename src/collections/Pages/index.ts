@@ -545,6 +545,65 @@ export const Pages: CollectionConfig<'pages'> = {
               ],
             },
             {
+              name: 'termsAndConditionsPage',
+              label: 'Terms and Conditions Page Settings',
+              type: 'group',
+              admin: {
+                condition: (data) => data?.slug === 'terms-and-conditions' || data?.slug === 'terms',
+              },
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  label: 'Main Heading',
+                  defaultValue: 'Terms and Conditions',
+                },
+                {
+                  name: 'subheading',
+                  type: 'text',
+                  label: 'Subheading',
+                  defaultValue: 'Terms and condition',
+                },
+                {
+                  name: 'effectiveDate',
+                  type: 'text',
+                  label: 'Effective Date',
+                  defaultValue: 'Effective as of April 5, 2025',
+                },
+                {
+                  name: 'sections',
+                  label: 'Policy Sections',
+                  type: 'array',
+                  admin: {
+                    initCollapsed: false,
+                  },
+                  fields: [
+                    {
+                      name: 'heading',
+                      type: 'text',
+                      label: 'Section Heading (e.g. Acceptance of the Terms)',
+                      required: true,
+                    },
+                    {
+                      name: 'content',
+                      type: 'richText',
+                      label: 'Section Content',
+                      editor: lexicalEditor({
+                        features: ({ rootFeatures }) => [
+                          ...rootFeatures,
+                          HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
+                          BlocksFeature({ blocks: [Banner, Code, MediaBlock] }),
+                          FixedToolbarFeature(),
+                          InlineToolbarFeature(),
+                          HorizontalRuleFeature(),
+                        ],
+                      }),
+                    },
+                  ],
+                },
+              ],
+            },
+            {
               name: 'buyAHomePage',
               label: 'Buy A Home Page Settings',
               type: 'group',

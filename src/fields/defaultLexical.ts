@@ -76,7 +76,7 @@ export const defaultLexical = lexicalEditor({
             label: ({ t }) => t('fields:enterURL'),
             required: true,
             validate: ((value, options) => {
-              if ((options?.siblingData as LinkFields)?.linkType === 'linkType' || (options?.siblingData as LinkFields)?.linkType === 'internal') {
+              if ((options?.siblingData as LinkFields)?.linkType === 'internal') {
                 return true
               }
               return value ? true : 'URL is required'
