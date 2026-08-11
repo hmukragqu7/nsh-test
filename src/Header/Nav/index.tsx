@@ -90,7 +90,6 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
                       textDecoration: 'none',
                       fontSize: '14px',
                       letterSpacing: '1.5px',
-                      textTransform: 'uppercase',
                       fontFamily: "'Montserrat', sans-serif",
                       fontWeight: '500',
                       display: 'block',
@@ -101,11 +100,11 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
               ))
             ) : (
               <>
-                <Link href="/" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>Home</Link>
-                <Link href="/properties" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>Properties</Link>
-                <Link href="/concierge-service" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>Concierge</Link>
-                <Link href="/blogs" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>Blogs</Link>
-                <Link href="/about" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>About</Link>
+                <Link href="/" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>Home</Link>
+                <Link href="/properties" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>Properties</Link>
+                <Link href="/concierge-service" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>Concierge</Link>
+                <Link href="/blogs" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>Blogs</Link>
+                <Link href="/about" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>About</Link>
               </>
             )}
 
@@ -119,7 +118,6 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
                   color: '#ffffff',
                   fontSize: '14px',
                   letterSpacing: '1.5px',
-                  textTransform: 'uppercase',
                   fontFamily: "'Montserrat', sans-serif",
                   fontWeight: '500',
                   display: 'flex',
@@ -185,7 +183,6 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
           fontFamily: "'Montserrat', sans-serif",
           fontSize: '13px',
           letterSpacing: '1.2px',
-          textTransform: 'uppercase',
         }}
         className="nsh-desktop-nav"
       >
@@ -219,7 +216,6 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
               fontFamily: "'Montserrat', sans-serif",
               fontSize: '13px',
               letterSpacing: '1.2px',
-              textTransform: 'uppercase',
               fontWeight: '500',
               cursor: 'pointer',
               padding: '10px 0',

@@ -62,7 +62,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, settings }) =>
         style={{
           maxWidth: '1440px',
           margin: '0 auto',
-          padding: '0 1.25rem',
+          padding: '0 1.5rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',

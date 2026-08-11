@@ -173,7 +173,7 @@ export default function PropertyDetailClient({
       />
 
       {/* Breadcrumb Navigation */}
-      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '1.25rem 1.5rem 0.5rem' }}>
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: 'clamp(6rem, 10vh, 7rem) 1.5rem 0.5rem' }}>
         <div
           style={{
             display: 'flex',
@@ -712,9 +712,8 @@ export default function PropertyDetailClient({
                 {/* 4 Summary Highlight Box Grid */}
                 <div
                   style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(4, 1fr)',
-                    gap: '0',
+                    display: 'flex',
+                    alignItems: 'stretch',
                     border: '1px solid #e8e1d6',
                     backgroundColor: '#fcfcfc',
                     marginBottom: '2.5rem',
@@ -722,17 +721,23 @@ export default function PropertyDetailClient({
                 >
                   <div
                     style={{
-                      padding: '1.5rem 1rem',
+                      flex: '1',
+                      padding: '1.25rem 0.75rem',
                       textAlign: 'center',
                       borderRight: '1px solid #e8e1d6',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}
                   >
                     <div
                       style={{
-                        fontSize: '28px',
+                        fontSize: '24px',
                         fontWeight: '400',
                         color: '#1a1a1a',
                         fontFamily: "'Montserrat', sans-serif",
+                        lineHeight: '1.2',
                       }}
                     >
                       {property.propertySummary?.numberOfBeds || '-'}
@@ -741,8 +746,9 @@ export default function PropertyDetailClient({
                       style={{
                         fontSize: '13px',
                         color: '#737373',
-                        marginTop: '0.2rem',
+                        marginTop: '0.35rem',
                         fontWeight: '400',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       Beds
@@ -751,17 +757,23 @@ export default function PropertyDetailClient({
 
                   <div
                     style={{
-                      padding: '1.5rem 1rem',
+                      flex: '1',
+                      padding: '1.25rem 0.75rem',
                       textAlign: 'center',
                       borderRight: '1px solid #e8e1d6',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}
                   >
                     <div
                       style={{
-                        fontSize: '28px',
+                        fontSize: '24px',
                         fontWeight: '400',
                         color: '#1a1a1a',
                         fontFamily: "'Montserrat', sans-serif",
+                        lineHeight: '1.2',
                       }}
                     >
                       {property.propertySummary?.numberOfBaths || '-'}
@@ -770,8 +782,9 @@ export default function PropertyDetailClient({
                       style={{
                         fontSize: '13px',
                         color: '#737373',
-                        marginTop: '0.2rem',
+                        marginTop: '0.35rem',
                         fontWeight: '400',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       Baths
@@ -780,17 +793,24 @@ export default function PropertyDetailClient({
 
                   <div
                     style={{
-                      padding: '1.5rem 1rem',
+                      flex: '1.2',
+                      padding: '1.25rem 0.75rem',
                       textAlign: 'center',
                       borderRight: '1px solid #e8e1d6',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}
                   >
                     <div
                       style={{
-                        fontSize: '28px',
+                        fontSize: '24px',
                         fontWeight: '400',
                         color: '#1a1a1a',
                         fontFamily: "'Montserrat', sans-serif",
+                        lineHeight: '1.2',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       {property.propertySummary?.acArea || '-'}
@@ -799,22 +819,34 @@ export default function PropertyDetailClient({
                       style={{
                         fontSize: '13px',
                         color: '#737373',
-                        marginTop: '0.2rem',
+                        marginTop: '0.35rem',
                         fontWeight: '400',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       AC Area
                     </div>
                   </div>
 
-                  <div style={{ padding: '1.5rem 1rem', textAlign: 'center' }}>
+                  <div
+                    style={{
+                      flex: '1.8',
+                      padding: '1.25rem 0.75rem',
+                      textAlign: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
                     <div
                       style={{
-                        fontSize: '18px',
+                        fontSize: '24px',
                         fontWeight: '400',
                         color: '#1a1a1a',
                         fontFamily: "'Montserrat', sans-serif",
-                        marginTop: '0.4rem',
+                        lineHeight: '1.2',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       {property.propertySummary?.designTheme || '-'}
@@ -823,8 +855,9 @@ export default function PropertyDetailClient({
                       style={{
                         fontSize: '13px',
                         color: '#737373',
-                        marginTop: '0.2rem',
+                        marginTop: '0.35rem',
                         fontWeight: '400',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       Design Theme

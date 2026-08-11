@@ -635,6 +635,10 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
           min-width: 320px;
           position: relative;
           overflow: hidden;
+          cursor: pointer;
+          text-decoration: none;
+          color: inherit;
+          display: block;
         }
         .nsh-listing-img-container {
           overflow: hidden;
@@ -1146,7 +1150,11 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
             onMouseLeave={onMouseUp}
           >
             {listingsData.map((listing, i) => (
-              <div key={i} className="nsh-listing-card">
+              <Link
+                key={i}
+                href={listing.href || '/properties'}
+                className="nsh-listing-card"
+              >
                 <div className="nsh-listing-img-container">
                   <img
                     src={listing.image}
@@ -1167,7 +1175,7 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
                     <span className="nsh-listing-details">{listing.details}</span>
                   </div>
                   <div className="nsh-listing-link-row">
-                    <Link href={listing.href} className="nsh-listing-link">
+                    <span className="nsh-listing-link">
                       <span>View Property</span>
                       <svg
                         width="10"
@@ -1181,10 +1189,10 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
                         <path d="M9 18l6-6-6-6" />
                         <path d="M15 18l6-6-6-6" opacity="0.7" />
                       </svg>
-                    </Link>
+                    </span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem' }}>
