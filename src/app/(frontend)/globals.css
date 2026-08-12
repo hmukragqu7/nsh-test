@@ -28,6 +28,26 @@
   }
 }
 
+@keyframes potomacMarquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.potomac-infinite-track {
+  display: flex;
+  gap: 1.75rem;
+  width: max-content;
+  animation: potomacMarquee 28s linear infinite;
+}
+
+.potomac-infinite-track:hover {
+  animation-play-state: paused;
+}
+
 @plugin "@tailwindcss/typography";
 
 @source inline("lg:col-span-4");
@@ -266,7 +286,7 @@ html[data-theme='light'] {
   }
 
   .nsh-container-narrow {
-    max-width: 840px;
+    max-width: 1440px;
     margin-inline: auto;
     padding-inline: 1.5rem;
     padding-top: clamp(6.5rem, 10vh, 8.5rem);
@@ -352,7 +372,7 @@ html[data-theme='light'] {
 
   .nsh-btn-gold {
     display: inline-block;
-    background: linear-gradient(135deg, #c1ac93 0%, #dfcbb5 100%);
+    background: linear-gradient(135deg, #8a561f 0%, #dfcbb5 100%);
     color: #0f172a;
     padding: 0.75rem 2rem;
     border-radius: 6px;
@@ -434,7 +454,7 @@ html[data-theme='light'] {
 
   /* Article & Form Component Shared Classes */
   .nsh-container-narrow {
-    max-width: 840px;
+    max-width: 1440px;
     margin-inline: auto;
     width: 100%;
     padding-top: clamp(6.5rem, 10vh, 8.5rem);

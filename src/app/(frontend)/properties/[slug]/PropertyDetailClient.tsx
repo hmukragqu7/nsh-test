@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 
 interface PropertyDetailClientProps {
@@ -27,6 +27,20 @@ export default function PropertyDetailClient({
   // Lightbox / Media Modal state
   const [activeModal, setActiveModal] = useState<'photos' | 'floorplans' | 'video' | null>(null)
   const [activePhotoTab, setActivePhotoTab] = useState<'design' | 'progress'>('design')
+  const [bannerSlideIndex, setBannerSlideIndex] = useState<number>(0)
+  const [activeNeighborhoodCard, setActiveNeighborhoodCard] = useState<number>(2) // Default 3rd card open (0-indexed)
+
+  // Prevent background scrolling when any modal is open
+  useEffect(() => {
+    if (activeModal) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [activeModal])
 
   // Swiper Slider Ref
   const sliderRef = useRef<HTMLDivElement>(null)
@@ -69,39 +83,62 @@ export default function PropertyDetailClient({
     }
   }
 
+  const getValidImageUrl = (img: any): string => {
+    if (!img) return ''
+    if (typeof img === 'string') {
+      if (img.startsWith('/') || img.startsWith('http') || img.includes('.')) return img
+      return ''
+    }
+    if (typeof img === 'object') {
+      if (img.url && typeof img.url === 'string') return img.url
+      if (img.filename && typeof img.filename === 'string') return `/media/${img.filename}`
+      if (img.image) return getValidImageUrl(img.image)
+    }
+    return ''
+  }
+
   const rawBase = property.name?.split(',')[0] || ''
+  const isWoodland = property.slug === 'woodland'
+  const isPotomac = property.slug === 'potomac' || property.slug === 'the-potomac'
+  const isParentCommunity = property.isGroupParent || isWoodland || isPotomac
   const cleanBase = rawBase.replace(/Dr|Ave|Road|Street|Lane/gi, '').trim()
 
   // Dynamic modal backgrounds
   const photosCoverUrl =
     (property.allPhotos &&
       property.allPhotos.length > 0 &&
-      typeof property.allPhotos[0] === 'object' &&
-      property.allPhotos[0]?.url) ||
-    'https://novelsignaturehomes.com/wp-content/uploads/2024/10/Gallery-Image-14.webp'
+      getValidImageUrl(property.allPhotos[0])) ||
+    '/media/1001Efront.webp'
 
   const floorplanCoverUrl =
     (property.floorPlans &&
       property.floorPlans.length > 0 &&
-      typeof property.floorPlans[0]?.image === 'object' &&
-      property.floorPlans[0].image?.url) ||
+      getValidImageUrl(property.floorPlans[0]?.image)) ||
     (property.allFloorPlanPhotos &&
       property.allFloorPlanPhotos.length > 0 &&
-      typeof property.allFloorPlanPhotos[0] === 'object' &&
-      property.allFloorPlanPhotos[0]?.url) ||
-    'https://novelsignaturehomes.com/wp-content/uploads/2024/10/Gallery-Image-14.webp'
+      getValidImageUrl(property.allFloorPlanPhotos[0])) ||
+    '/media/034.webp'
 
   const videoCoverUrl =
     (property.bannerImages &&
       property.bannerImages.length > 0 &&
-      typeof property.bannerImages[0] === 'object' &&
-      property.bannerImages[0]?.url) ||
-    'https://novelsignaturehomes.com/wp-content/uploads/2024/10/Gallery-Image-14.webp'
+      getValidImageUrl(property.bannerImages[0])) ||
+    '/media/3dtour.webp'
+
+  // Dynamic media availability flags
+  const hasFloorplans = Boolean(
+    (property.floorPlans && property.floorPlans.length > 0) ||
+      (property.allFloorPlanPhotos && property.allFloorPlanPhotos.length > 0),
+  )
+  const hasVideo = Boolean(youtubeEmbedUrl || property.youtubeVideoUrl)
+
+  // Filter out any child unit properties (only display individual standalone properties)
+  const standaloneProps = otherProperties.filter((p: any) => !p.parentProperty)
 
   // Fallback default properties if none passed
   const listOtherProps =
-    otherProperties.length > 0
-      ? otherProperties
+    standaloneProps.length > 0
+      ? standaloneProps
       : [
           {
             id: '1',
@@ -148,6 +185,8 @@ export default function PropertyDetailClient({
         color: '#1a1a1a',
         minHeight: '100vh',
         fontFamily: "'Montserrat', sans-serif",
+        overflowX: 'hidden',
+        width: '100%',
       }}
     >
       {/* Import Google Fonts */}
@@ -173,7 +212,13 @@ export default function PropertyDetailClient({
       />
 
       {/* Breadcrumb Navigation */}
-      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: 'clamp(6rem, 10vh, 7rem) 1.5rem 0.5rem' }}>
+      <div
+        style={{
+          maxWidth: '1440px',
+          margin: '0 auto',
+          padding: 'clamp(6rem, 10vh, 7rem) 1.5rem 0.5rem',
+        }}
+      >
         <div
           style={{
             display: 'flex',
@@ -197,308 +242,1623 @@ export default function PropertyDetailClient({
         </div>
       </div>
 
-      {property.isGroupParent ? (
-        <div>
-          {/* Main Title Section */}
-          <section style={{ maxWidth: '1440px', margin: '3rem auto 1.5rem', padding: '0 1.5rem' }}>
-            <h1
+      {isParentCommunity ? (
+        isPotomac ? (
+          <div>
+            {/* Potomac Section 1: Hero Banner Carousel Slider */}
+            <section
               style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontSize: '42px',
-                fontWeight: '400',
-                color: '#1a1a1a',
-                margin: '0 0 1rem',
+                maxWidth: '1440px',
+                margin: '1.5rem auto 1rem',
+                padding: '0 1.5rem',
+                position: 'relative',
               }}
             >
-              The <span style={{ color: '#c1ac93' }}>{cleanBase}</span> Collection
-            </h1>
-            <hr style={{ border: 'none', borderTop: '1px solid #e8e1d6', margin: '0' }} />
-          </section>
-
-          {/* Unit Carousel Slider */}
-          <section style={{ maxWidth: '1440px', margin: '3rem auto 4rem', padding: '0 1.5rem' }}>
-            <div style={{ position: 'relative', width: '100%' }}>
-              {/* Navigation Arrows */}
-              <button
-                type="button"
-                onClick={scrollCommunityLeft}
-                style={{
-                  position: 'absolute',
-                  left: '-20px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '50%',
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                  zIndex: 10,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '22px',
-                  color: '#1a1a1a',
-                  transition: 'background-color 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f8fafc'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#ffffff'
-                }}
-              >
-                ‹
-              </button>
-              <button
-                type="button"
-                onClick={scrollCommunityRight}
-                style={{
-                  position: 'absolute',
-                  right: '-20px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '50%',
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                  zIndex: 10,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '22px',
-                  color: '#1a1a1a',
-                  transition: 'background-color 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f8fafc'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#ffffff'
-                }}
-              >
-                ›
-              </button>
-
-              {/* Scrollable track */}
               <div
-                ref={communitySliderRef}
-                className="no-scrollbar"
                 style={{
-                  display: 'flex',
-                  gap: '1.5rem',
-                  overflowX: 'auto',
-                  scrollBehavior: 'smooth',
-                  padding: '0.5rem 0 1.5rem',
-                  scrollbarWidth: 'none',
+                  position: 'relative',
+                  width: '100%',
+                  height: 'clamp(380px, 56vh, 620px)',
+                  backgroundColor: '#1f1f1f',
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
                 }}
               >
-                {childProperties.map((unit: any, idx: number) => {
-                  const isUnitSold = unit.status === 'sold'
-                  const isUnitUnderContract = unit.status === 'under_contract'
-                  const statusColor = isUnitSold
-                    ? '#ef4444'
-                    : isUnitUnderContract
-                      ? '#eab308'
-                      : '#22c55e'
-                  const statusLabel = isUnitSold
-                    ? 'Sold Out'
-                    : isUnitUnderContract
-                      ? 'Under Contract'
-                      : 'For Sale'
+                {(() => {
+                  const potomacImagesList = [
+                    '/media/SmallB-Exterior.00051-ezgif.com-png-to-webp-converter-scaled.webp',
+                    '/media/Potomac_Exterior_Updated.webp',
+                    '/media/Potomac-1.webp',
+                    '/media/Potomac-1-6.webp',
+                    '/media/potomac-2-exterior-render-1.webp',
+                  ]
+                  const propertyUrls = (property.bannerImages || [])
+                    .map(getValidImageUrl)
+                    .filter(Boolean)
+                  const finalImages = propertyUrls.length > 0 ? propertyUrls : potomacImagesList
+                  const activeImage = finalImages[bannerSlideIndex % finalImages.length]
 
-                  const specsParts = []
-                  if (unit.propertySummary?.numberOfBeds)
-                    specsParts.push(`${unit.propertySummary.numberOfBeds} BD`)
-                  if (unit.propertySummary?.numberOfBaths)
-                    specsParts.push(`${unit.propertySummary.numberOfBaths} BA`)
-                  if (unit.propertySummary?.acArea)
-                    specsParts.push(`AC Area : ${unit.propertySummary.acArea}`)
-                  const specsText = specsParts.join(' | ')
-
-                  const unitMatch = unit.name?.match(/Unit\s*(\d+)/i)
-                  const unitNumber = unitMatch ? unitMatch[1] : (idx + 1).toString()
-                  const displayName = `The ${cleanBase} ${unitNumber}`
-
-                  const unitImg =
-                    (unit.bannerImages &&
-                      unit.bannerImages.length > 0 &&
-                      unit.bannerImages[0]?.url) ||
-                    'https://novelsignaturehomes.com/wp-content/uploads/2024/10/Gallery-Image-14.webp'
+                  const prevSlide = () => {
+                    setBannerSlideIndex((prev) => (prev === 0 ? finalImages.length - 1 : prev - 1))
+                  }
+                  const nextSlide = () => {
+                    setBannerSlideIndex((prev) => (prev === finalImages.length - 1 ? 0 : prev + 1))
+                  }
 
                   return (
-                    <Link
-                      key={unit.id}
-                      href={`/properties/${unit.slug}`}
+                    <>
+                      <img
+                        src={activeImage}
+                        alt="The Potomac Banner"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          display: 'block',
+                          transition: 'opacity 0.4s ease-in-out',
+                        }}
+                      />
+                      {/* Left Arrow */}
+                      <button
+                        type="button"
+                        onClick={prevSlide}
+                        style={{
+                          position: 'absolute',
+                          left: '20px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          width: '44px',
+                          height: '44px',
+                          borderRadius: '50%',
+                          backgroundColor: 'rgba(0,0,0,0.4)',
+                          color: '#ffffff',
+                          border: 'none',
+                          fontSize: '24px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backdropFilter: 'blur(4px)',
+                        }}
+                      >
+                        ‹
+                      </button>
+                      {/* Right Arrow */}
+                      <button
+                        type="button"
+                        onClick={nextSlide}
+                        style={{
+                          position: 'absolute',
+                          right: '20px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          width: '44px',
+                          height: '44px',
+                          borderRadius: '50%',
+                          backgroundColor: 'rgba(0,0,0,0.4)',
+                          color: '#ffffff',
+                          border: 'none',
+                          fontSize: '24px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backdropFilter: 'blur(4px)',
+                        }}
+                      >
+                        ›
+                      </button>
+                    </>
+                  )
+                })()}
+
+                {/* Floor Plan Overlay Button */}
+                <div style={{ position: 'absolute', bottom: '25px', right: '30px', zIndex: 10 }}>
+                  <div
+                    onClick={() => setActiveModal('floorplans')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '10px 24px',
+                      border: '2px solid #ffffff',
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      backdropFilter: 'blur(6px)',
+                      color: '#ffffff',
+                      cursor: 'pointer',
+                      boxShadow: '0px 2px 10px rgba(0,0,0,0.4)',
+                    }}
+                  >
+                    <img src="/media/blueprint-1-4.png" alt="Floor Plan" width="28" height="28" />
+                    <div>
+                      <div style={{ fontWeight: '600', fontSize: '15px', lineHeight: '1.2' }}>
+                        Floor Plan
+                      </div>
+                      <div style={{ fontSize: '11px', opacity: 0.9 }}>Explore the Layout</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Disclaimer Line */}
+              <div
+                style={{
+                  textAlign: 'center',
+                  marginTop: '1rem',
+                  fontSize: '12px',
+                  color: '#666666',
+                  fontStyle: 'italic',
+                }}
+              >
+                <strong>Disclaimer :</strong> These images are rendered visuals of the property that is
+                currently under construction. Images © Novel Signature Homes.
+              </div>
+            </section>
+
+            {/* Potomac Section 2: Title & 2-Column Showcase (Video Left + Full Description Paragraph Right) */}
+            <section
+              style={{
+                maxWidth: '1440px',
+                margin: '3rem auto',
+                padding: '0 1.5rem',
+              }}
+            >
+              <h1
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: '52px',
+                  fontWeight: '400',
+                  color: '#1a1a1a',
+                  textAlign: 'center',
+                  margin: '0 0 1.5rem',
+                }}
+              >
+                The Potomac
+              </h1>
+              <hr
+                style={{
+                  border: 0,
+                  borderTop: '1px solid #e8e1d6',
+                  margin: '0 0 3rem',
+                }}
+              />
+
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+                  gap: '3.5rem',
+                  alignItems: 'center',
+                }}
+              >
+                {/* Left Column: 16:9 YouTube Video Embed */}
+                <div
+                  style={{
+                    position: 'relative',
+                    width: '100%',
+                    aspectRatio: '16/9',
+                    overflow: 'hidden',
+                    borderRadius: '4px',
+                    boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
+                  }}
+                >
+                  <iframe
+                    src={
+                      youtubeEmbedUrl ||
+                      'https://www.youtube.com/embed/iDv2I89i8QY?list=PLIOenYiAgtKRgzRAbfs-glHFnXTYkJWpG&rel=0'
+                    }
+                    title="A New Standard in Houston Luxury Living | The Potomac by Novel Signature Homes"
+                    style={{ width: '100%', height: '100%', border: 'none' }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+
+                {/* Right Column: Detailed Description Paragraph */}
+                <div>
+                  <p
+                    style={{
+                      fontFamily: "'Montserrat', sans-serif",
+                      fontSize: '15px',
+                      lineHeight: '1.85',
+                      color: '#525252',
+                      margin: 0,
+                    }}
+                  >
+                    {property.description ||
+                      "This exclusive collection of luxury homes offers an unparalleled living experience in one of the city's most coveted areas. It enjoys proximity to prestigious schools like T.H. Rogers and Kinkaid, making it ideal for families. With Briarbend Park nearby and easy access to numerous retail centers, this home combines convenience with elegance. Designed by the renowned Kevin Spearman, the interiors exude sophistication, blending modern aesthetics with timeless charm. With excellent public transport access and a prime location, this home represents the height of luxury living in Houston."}
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Potomac Section 3: Project Team & Partners Bar */}
+            <section
+              style={{
+                backgroundColor: '#1c1c1c',
+                color: '#ffffff',
+                padding: '2.5rem 1.5rem',
+                margin: '4rem 0',
+              }}
+            >
+              <div
+                style={{
+                  maxWidth: '1280px',
+                  margin: '0 auto',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '2rem',
+                  textAlign: 'center',
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontSize: '11px',
+                      color: '#dfcbb5',
+                      textTransform: 'uppercase',
+                      letterSpacing: '2px',
+                      marginBottom: '0.4rem',
+                    }}
+                  >
+                    BROKER
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontSize: '24px',
+                      fontWeight: '500',
+                    }}
+                  >
+                    {property.projectTeam?.brokerName || 'Casey Charles'}
+                  </div>
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontSize: '11px',
+                      color: '#dfcbb5',
+                      textTransform: 'uppercase',
+                      letterSpacing: '2px',
+                      marginBottom: '0.4rem',
+                    }}
+                  >
+                    BUILDER
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontSize: '24px',
+                      fontWeight: '500',
+                    }}
+                  >
+                    {property.projectTeam?.builderName || 'Gifford Construction'}
+                  </div>
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontSize: '11px',
+                      color: '#dfcbb5',
+                      textTransform: 'uppercase',
+                      letterSpacing: '2px',
+                      marginBottom: '0.4rem',
+                    }}
+                  >
+                    INTERIOR DESIGNER
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontSize: '24px',
+                      fontWeight: '500',
+                    }}
+                  >
+                    {property.projectTeam?.interiorDesignerName || 'Kevin Spearman'}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Potomac Section 4: The Potomac Collection (Infinite Smooth Auto-Slider, 3 Cards Per View) */}
+            <section style={{ maxWidth: '1440px', margin: '4rem auto', padding: '0 1.5rem', overflow: 'hidden' }}>
+              <h2
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: '42px',
+                  fontWeight: '400',
+                  color: '#1a1a1a',
+                  margin: '0',
+                }}
+              >
+                The <span style={{ color: '#8A561F' }}>Potomac</span> collection
+              </h2>
+              <hr style={{ border: 0, borderTop: '1px solid #e8e1d6', margin: '1.5rem 0 2.5rem' }} />
+
+              <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+                <div className="potomac-infinite-track">
+                  {(() => {
+                    const rawUnits =
+                      childProperties.length > 0
+                        ? childProperties
+                        : [
+                            {
+                              name: 'The Potomac 1',
+                              slug: 'the-potomac-1',
+                              status: 'under_contract',
+                              beds: '4',
+                              baths: '6',
+                              ac: '5,412',
+                              img: '/media/potomac1TLA.webp',
+                            },
+                            {
+                              name: 'The Potomac 2',
+                              slug: 'the-potomac-2',
+                              status: 'for_sale',
+                              beds: '4',
+                              baths: '7',
+                              ac: '4,592',
+                              img: '/media/1.Potomac2-5card.webp',
+                            },
+                            {
+                              name: 'The Potomac 3',
+                              slug: 'the-potomac-3',
+                              status: 'for_sale',
+                              beds: '4',
+                              baths: '7',
+                              ac: '4,592',
+                              img: '/media/2.Potomac2-5.webp',
+                            },
+                            {
+                              name: 'The Potomac 4',
+                              slug: 'the-potomac-4',
+                              status: 'for_sale',
+                              beds: '4',
+                              baths: '7',
+                              ac: '4,592',
+                              img: '/media/1.Potomac2-5card.webp',
+                            },
+                            {
+                              name: 'The Potomac 5',
+                              slug: 'the-potomac-5',
+                              status: 'for_sale',
+                              beds: '4',
+                              baths: '7',
+                              ac: '4,592',
+                              img: '/media/2.Potomac2-5.webp',
+                            },
+                            {
+                              name: 'The Potomac 6',
+                              slug: 'the-potomac-6',
+                              status: 'for_sale',
+                              beds: '4',
+                              baths: '6',
+                              ac: '5,412',
+                              img: '/media/2.Potomac16frontlow.webp',
+                            },
+                          ]
+
+                    // Duplicate array to enable seamless infinite scroll loop
+                    const duplicatedUnits = [...rawUnits, ...rawUnits]
+
+                    return duplicatedUnits.map((unit: any, idx: number) => {
+                      const isUnderContract = unit.status === 'under_contract'
+                      const statusText = isUnderContract ? 'UNDER CONTRACT' : 'FOR SALE'
+                      const statusBg = isUnderContract ? '#8A561F' : '#1e3a8a'
+                      const imgUrl =
+                        getValidImageUrl(unit.bannerImages?.[0]) ||
+                        unit.img ||
+                        '/media/Potomac_Exterior_Updated.webp'
+
+                      return (
+                        <Link
+                          key={`${unit.id || unit.slug}-${idx}`}
+                          href={`/properties/${unit.slug}`}
+                          style={{
+                            width: 'clamp(300px, 31vw, 420px)',
+                            flex: '0 0 clamp(300px, 31vw, 420px)',
+                            border: '1px solid #e8e1d6',
+                            backgroundColor: '#ffffff',
+                            borderRadius: '4px',
+                            overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            textDecoration: 'none',
+                            color: 'inherit',
+                            cursor: 'pointer',
+                            transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                          }}
+                        >
+                          <div style={{ position: 'relative', height: '240px', overflow: 'hidden' }}>
+                            <img
+                              src={imgUrl}
+                              alt={unit.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: '12px',
+                                right: '12px',
+                                backgroundColor: statusBg,
+                                color: '#ffffff',
+                                fontSize: '10px',
+                                fontWeight: '700',
+                                letterSpacing: '1px',
+                                padding: '4px 10px',
+                                borderRadius: '2px',
+                                textTransform: 'uppercase',
+                              }}
+                            >
+                              {statusText}
+                            </div>
+                          </div>
+                          <div
+                            style={{
+                              padding: '1.5rem',
+                              flexGrow: 1,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'space-between',
+                            }}
+                          >
+                            <div>
+                              <h3
+                                style={{
+                                  fontFamily: "'Cormorant Garamond', serif",
+                                  fontSize: '26px',
+                                  fontWeight: '500',
+                                  color: '#1a1a1a',
+                                  margin: '0 0 0.5rem',
+                                }}
+                              >
+                                {unit.name}
+                              </h3>
+                              <div
+                                style={{
+                                  fontSize: '13px',
+                                  color: '#666666',
+                                  marginBottom: '1.25rem',
+                                }}
+                              >
+                                {unit.propertySummary?.numberOfBeds || unit.beds || '4'} BD |{' '}
+                                {unit.propertySummary?.numberOfBaths || unit.baths || '6'} BA | AC Area :{' '}
+                                {unit.propertySummary?.acArea || unit.ac || '5,412'}
+                              </div>
+                            </div>
+                            <div>
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  color: '#8A561F',
+                                  fontSize: '13px',
+                                  fontWeight: '600',
+                                  letterSpacing: '0.5px',
+                                }}
+                              >
+                                View Property »
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+                      )
+                    })
+                  })()}
+                </div>
+              </div>
+            </section>
+
+            {/* Potomac Section 5: Experience Your Future Home (All Photos & All Floor Plans Only) */}
+            <section
+              style={{
+                backgroundColor: '#ffffff',
+                padding: '4rem 1.5rem',
+                borderTop: '1px solid #e8e1d6',
+                borderBottom: '1px solid #e8e1d6',
+              }}
+            >
+              <div style={{ maxWidth: '1440px', margin: '0 auto' }}>
+                <h2
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: '42px',
+                    fontWeight: '400',
+                    color: '#1a1a1a',
+                    margin: '0 0 1.5rem',
+                  }}
+                >
+                  Experience Your <span style={{ color: '#8A561F' }}>Future Home</span>
+                </h2>
+                <hr
+                  style={{ border: 0, borderTop: '1px solid #e8e1d6', margin: '0 0 2.5rem' }}
+                />
+
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '1.5rem',
+                  }}
+                >
+                  {/* Card 1: All Photos (33.33% width) */}
+                  <div
+                    onClick={() => setActiveModal('photos')}
+                    style={{
+                      position: 'relative',
+                      height: '220px',
+                      backgroundColor: '#262626',
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    <img
+                      src="/media/Potomac_Exterior_Updated.webp"
+                      alt="All Photos"
                       style={{
-                        textDecoration: 'none',
-                        color: 'inherit',
-                        flex: '0 0 calc(25% - 1.15rem)',
-                        minWidth: '280px',
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        opacity: 0.8,
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                       }}
                     >
                       <div
                         style={{
-                          position: 'relative',
-                          width: '100%',
-                          height: '380px',
-                          backgroundImage: `url(${unitImg})`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          borderRadius: '4px',
-                          overflow: 'hidden',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'flex-end',
-                          padding: '2.5rem 1.5rem',
+                          padding: '8px 20px',
+                          border: '1px solid #ffffff',
                           color: '#ffffff',
-                          textAlign: 'center',
-                          boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
-                          cursor: 'pointer',
+                          backgroundColor: 'rgba(0,0,0,0.4)',
+                          fontSize: '14px',
+                          fontWeight: '500',
+                          letterSpacing: '0.5px',
                         }}
                       >
+                        All Photos
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 2: All Floor Plans (33.33% width) */}
+                  <div
+                    onClick={() => setActiveModal('floorplans')}
+                    style={{
+                      position: 'relative',
+                      height: '220px',
+                      backgroundColor: '#171717',
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    <img
+                      src="/media/potomac25floorplan.webp"
+                      alt="All Floor Plans"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        opacity: 0.5,
+                        filter: 'grayscale(100%)',
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <div
+                        style={{
+                          padding: '8px 20px',
+                          border: '1px solid #ffffff',
+                          color: '#ffffff',
+                          backgroundColor: 'rgba(0,0,0,0.4)',
+                          fontSize: '14px',
+                          fontWeight: '500',
+                          letterSpacing: '0.5px',
+                        }}
+                      >
+                        All Floor Plans
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Potomac Section 6: Contact Form (Matching Image 2 100% with top gold border line, 2-column layout, and woodgrain background) */}
+            <section
+              style={{
+                backgroundImage: "url('/media/whitebg-1.webp')",
+                backgroundColor: '#fbfaf8',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                borderTop: '1px solid #8A561F',
+                padding: '5rem 1.5rem',
+              }}
+            >
+              <div
+                style={{
+                  maxWidth: '1360px',
+                  margin: '0 auto',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+                  gap: '4rem',
+                  alignItems: 'center',
+                }}
+              >
+                {/* Left Column: Uppercase Title */}
+                <div>
+                  <h2
+                    style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontSize: '44px',
+                      fontWeight: '400',
+                      lineHeight: '1.25',
+                      color: '#1a1a1a',
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
+                      margin: 0,
+                    }}
+                  >
+                    LET'S FIND YOUR <span style={{ color: '#8A561F' }}>DREAM HOME</span> TOGETHER
+                  </h2>
+                </div>
+
+                {/* Right Column: Form Inputs */}
+                <div>
+                  <form
+                    onSubmit={(e) => e.preventDefault()}
+                    style={{ display: 'grid', gap: '1.25rem' }}
+                  >
+                    <div>
+                      <label
+                        style={{
+                          display: 'block',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          color: '#444444',
+                          marginBottom: '0.35rem',
+                        }}
+                      >
+                        Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '14px 18px',
+                          backgroundColor: '#eeeeef',
+                          border: 'none',
+                          borderRadius: '2px',
+                          fontSize: '14px',
+                          color: '#1a1a1a',
+                          outline: 'none',
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label
+                        style={{
+                          display: 'block',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          color: '#444444',
+                          marginBottom: '0.35rem',
+                        }}
+                      >
+                        Phone
+                      </label>
+                      <input
+                        type="tel"
+                        style={{
+                          width: '100%',
+                          padding: '14px 18px',
+                          backgroundColor: '#eeeeef',
+                          border: 'none',
+                          borderRadius: '2px',
+                          fontSize: '14px',
+                          color: '#1a1a1a',
+                          outline: 'none',
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label
+                        style={{
+                          display: 'block',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          color: '#444444',
+                          marginBottom: '0.35rem',
+                        }}
+                      >
+                        Email *
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '14px 18px',
+                          backgroundColor: '#eeeeef',
+                          border: 'none',
+                          borderRadius: '2px',
+                          fontSize: '14px',
+                          color: '#1a1a1a',
+                          outline: 'none',
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label
+                        style={{
+                          display: 'block',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          color: '#444444',
+                          marginBottom: '0.35rem',
+                        }}
+                      >
+                        Message
+                      </label>
+                      <textarea
+                        rows={4}
+                        style={{
+                          width: '100%',
+                          padding: '14px 18px',
+                          backgroundColor: '#eeeeef',
+                          border: 'none',
+                          borderRadius: '2px',
+                          fontSize: '14px',
+                          color: '#1a1a1a',
+                          outline: 'none',
+                          resize: 'vertical',
+                        }}
+                      />
+                    </div>
+                    <div style={{ textAlign: 'left', marginTop: '0.5rem' }}>
+                      <button
+                        type="submit"
+                        style={{
+                          padding: '14px 42px',
+                          backgroundColor: '#000000',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '2px',
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          letterSpacing: '1px',
+                          cursor: 'pointer',
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Submit
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </section>
+          </div>
+        ) : (
+          <div>
+            {/* Section 1: Banner Carousel Slider */}
+          <section
+            className="woodland-banner"
+            style={{
+              maxWidth: '1440px',
+              margin: '1.5rem auto 3rem',
+              padding: '0 1.5rem',
+              position: 'relative',
+            }}
+          >
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: 'clamp(380px, 56vh, 620px)',
+                backgroundColor: '#1f1f1f',
+                borderRadius: '4px',
+                overflow: 'hidden',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
+              }}
+            >
+              {(() => {
+                const bannerImagesList = [
+                  '/media/gal-img-1.webp',
+                  '/media/gal-img-2.webp',
+                  '/media/gal-img-3.webp',
+                  '/media/gal-img-4.webp',
+                  '/media/2436-WhiteOak-Render-1-1024x573.webp',
+                  '/media/2434-WhiteOak-Render-1-1024x573.webp',
+                ]
+                const propertyUrls = (property.bannerImages || [])
+                  .map(getValidImageUrl)
+                  .filter(Boolean)
+                const finalImages = propertyUrls.length > 0 ? propertyUrls : bannerImagesList
+                const activeImage = finalImages[bannerSlideIndex % finalImages.length]
+
+                const prevSlide = () => {
+                  setBannerSlideIndex((prev) => (prev === 0 ? finalImages.length - 1 : prev - 1))
+                }
+                const nextSlide = () => {
+                  setBannerSlideIndex((prev) => (prev === finalImages.length - 1 ? 0 : prev + 1))
+                }
+
+                return (
+                  <>
+                    <img
+                      src={activeImage}
+                      alt={`${property.name || 'Woodland Heights'} Banner ${bannerSlideIndex + 1}`}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        display: 'block',
+                        transition: 'opacity 0.4s ease-in-out',
+                      }}
+                    />
+
+                    {/* Navigation Arrow Left */}
+                    <button
+                      type="button"
+                      onClick={prevSlide}
+                      aria-label="Previous Slide"
+                      style={{
+                        position: 'absolute',
+                        left: '20px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(0, 0, 0, 0.45)',
+                        color: '#ffffff',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        backdropFilter: 'blur(4px)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '20px',
+                        zIndex: 10,
+                        transition: 'background-color 0.2s',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.75)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.45)')}
+                    >
+                      ‹
+                    </button>
+
+                    {/* Navigation Arrow Right */}
+                    <button
+                      type="button"
+                      onClick={nextSlide}
+                      aria-label="Next Slide"
+                      style={{
+                        position: 'absolute',
+                        right: '20px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(0, 0, 0, 0.45)',
+                        color: '#ffffff',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        backdropFilter: 'blur(4px)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '20px',
+                        zIndex: 10,
+                        transition: 'background-color 0.2s',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.75)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.45)')}
+                    >
+                      ›
+                    </button>
+
+                    {/* Dot Indicators */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: '20px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        display: 'flex',
+                        gap: '8px',
+                        zIndex: 10,
+                      }}
+                    >
+                      {finalImages.map((_: any, idx: number) => (
                         <div
+                          key={idx}
+                          onClick={() => setBannerSlideIndex(idx)}
                           style={{
-                            position: 'absolute',
-                            inset: 0,
-                            background:
-                              'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.1) 100%)',
-                            zIndex: 1,
+                            width: idx === bannerSlideIndex ? '24px' : '8px',
+                            height: '8px',
+                            borderRadius: '4px',
+                            backgroundColor: idx === bannerSlideIndex ? '#ffffff' : 'rgba(255, 255, 255, 0.5)',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease',
                           }}
                         />
+                      ))}
+                    </div>
+                  </>
+                )
+              })()}
+            </div>
+          </section>
 
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '15px',
-                            right: '15px',
-                            zIndex: 2,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '5px',
-                            backgroundColor: 'rgba(0,0,0,0.65)',
-                            padding: '4px 10px',
-                            borderRadius: '2px',
-                            fontSize: '8px',
-                            fontWeight: '700',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px',
-                          }}
-                        >
-                          <span
-                            style={{
-                              display: 'inline-block',
-                              width: '5px',
-                              height: '5px',
-                              borderRadius: '50%',
-                              backgroundColor: statusColor,
-                            }}
-                          />
-                          {statusLabel}
-                        </div>
+          {/* Main Title & Unit Addresses Section */}
+          <section style={{ maxWidth: '1440px', margin: '2rem auto 1.5rem', padding: '0 1.5rem', textAlign: 'center' }}>
+            <h1
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: '44px',
+                fontWeight: '400',
+                color: '#1a1a1a',
+                margin: '0 0 1rem',
+                letterSpacing: '0.5px',
+              }}
+            >
+              {property.name?.toLowerCase().includes('woodland') ? 'Woodland Heights' : (property.name?.split(',')[0] || 'Woodland Heights')}
+            </h1>
+            <hr style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '0 0 1.5rem' }} />
 
-                        <div style={{ position: 'relative', zIndex: 2, color: '#ffffff' }}>
-                          <h3
-                            style={{
-                              fontFamily: "'Cormorant Garamond', serif",
-                              fontSize: '24px',
-                              fontWeight: '400',
-                              margin: '0 0 0.5rem',
-                              letterSpacing: '0.5px',
-                            }}
-                          >
-                            {displayName}
-                          </h3>
-                          <div
-                            style={{ fontSize: '11px', color: '#cbd5e1', marginBottom: '1.5rem' }}
-                          >
-                            {specsText}
-                          </div>
-                          <div
-                            style={{
-                              fontSize: '11px',
-                              fontWeight: '600',
-                              color: '#dfcbb5',
-                              textTransform: 'uppercase',
-                              letterSpacing: '1px',
-                              borderBottom: '1px solid rgba(223,203,181,0.35)',
-                              display: 'inline-block',
-                              paddingBottom: '3px',
-                            }}
-                          >
-                            View Property »
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  )
-                })}
+            {/* Sub-Unit Addresses Row */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '1rem',
+                fontSize: '13px',
+                fontFamily: "'Montserrat', sans-serif",
+                color: '#334155',
+                marginBottom: '1.5rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#1a1a1a' }}>
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>2436 White Oak Dr, Houston, TX, 77009</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#1a1a1a' }}>
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>2434 White Oak Dr, Houston, TX, 77009</span>
               </div>
             </div>
           </section>
 
-          {/* Experience Your Future Home Section */}
-          <section style={{ maxWidth: '1440px', margin: '4rem auto 6rem', padding: '0 1.5rem' }}>
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          {/* Section 2: Project Team & Partners Bar */}
+          <section
+            className="woodland-team"
+            style={{
+              maxWidth: '1440px',
+              margin: '0 auto 4rem',
+              padding: '0 1.5rem',
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: '#1a1a1a',
+                color: '#ffffff',
+                padding: '1.75rem 2rem',
+                borderRadius: '2px',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '1.5rem',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+              }}
+            >
+              <div style={{ textAlign: 'center' }}>
+                <div
+                  style={{
+                    fontFamily: "'Montserrat', sans-serif",
+                    fontSize: '12px',
+                    color: '#a3a3a3',
+                    marginBottom: '6px',
+                    fontWeight: '400',
+                  }}
+                >
+                  Broker
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Montserrat', sans-serif",
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    color: '#ffffff',
+                    letterSpacing: '0.3px',
+                  }}
+                >
+                  {property.projectTeam?.brokerName || property.brokerName || 'Ed Wolff'}
+                </div>
+              </div>
+
+              <div style={{ textAlign: 'center' }}>
+                <div
+                  style={{
+                    fontFamily: "'Montserrat', sans-serif",
+                    fontSize: '12px',
+                    color: '#a3a3a3',
+                    marginBottom: '6px',
+                    fontWeight: '400',
+                  }}
+                >
+                  Builder
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Montserrat', sans-serif",
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    color: '#ffffff',
+                    letterSpacing: '0.3px',
+                  }}
+                >
+                  {property.projectTeam?.builderName || property.builderName || 'Novel Signature Homes'}
+                </div>
+              </div>
+
+              <div style={{ textAlign: 'center' }}>
+                <div
+                  style={{
+                    fontFamily: "'Montserrat', sans-serif",
+                    fontSize: '12px',
+                    color: '#a3a3a3',
+                    marginBottom: '6px',
+                    fontWeight: '400',
+                  }}
+                >
+                  Architecture
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Montserrat', sans-serif",
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    color: '#ffffff',
+                    letterSpacing: '0.3px',
+                  }}
+                >
+                  {property.projectTeam?.architectName || property.architectName || 'Todd Rice'}
+                </div>
+              </div>
+
+              <div style={{ textAlign: 'center' }}>
+                <div
+                  style={{
+                    fontFamily: "'Montserrat', sans-serif",
+                    fontSize: '12px',
+                    color: '#a3a3a3',
+                    marginBottom: '6px',
+                    fontWeight: '400',
+                  }}
+                >
+                  Interior Designer
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Montserrat', sans-serif",
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    color: '#ffffff',
+                    letterSpacing: '0.3px',
+                  }}
+                >
+                  {property.projectTeam?.interiorDesignerName || property.interiorDesignName || 'Steve Clifton'}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Section 3: About Community Section */}
+          <section
+            className="woodland-about"
+            style={{ maxWidth: '1440px', margin: '4rem auto 5rem', padding: '0 1.5rem' }}
+          >
+            <h2
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: '38px',
+                fontWeight: '400',
+                color: '#1a1a1a',
+                margin: '0 0 0.5rem',
+              }}
+            >
+              About <span style={{ color: '#8A561F' }}>{property.aboutSection?.aboutTitle || (property.name?.toLowerCase().includes('woodland') ? 'Woodland Heights' : (property.name?.split(',')[0] || 'Woodland Heights'))}</span>
+            </h2>
+            <hr style={{ border: 'none', borderTop: '1px solid #e8e1d6', margin: '1rem 0 2rem' }} />
+
+            {/* Lead Intro Paragraph */}
+            <p
+              style={{
+                fontFamily: "'Montserrat', sans-serif",
+                fontSize: '14px',
+                lineHeight: '1.85',
+                color: '#475569',
+                marginBottom: '2.5rem',
+              }}
+            >
+              {property.aboutSection?.aboutIntro ||
+                property.description ||
+                `Nestled in the leafy charm of White Oaks Dr in Houston, Texas, this newly developed luxury home offers a rare blend of refined design and everyday indulgence. Thoughtfully positioned to embrace its natural surroundings, this property is a study in balance -where clean lines meet soulful warmth. Every finish is chosen with care, creating an atmosphere that feels both sophisticated and grounded. This is not just a residential house—this is a luxury retreat in Texas for those who value discretion, artisanship, and the quiet beauty of a life well lived.`}
+            </p>
+
+            {/* Aerial Background Image Banner with 3 Glassmorphism Cards */}
+            <div
+              style={{
+                position: 'relative',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '100vw',
+                backgroundImage: `url(${property.aboutSection?.aboutBackgroundImage ? getValidImageUrl(property.aboutSection.aboutBackgroundImage) : '/media/gal-img-1.webp'})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                overflow: 'hidden',
+                padding: '4.5rem 0',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  backgroundColor: 'rgba(0, 0, 0, 0.35)',
+                  zIndex: 1,
+                }}
+              />
+
+              <div
+                style={{
+                  position: 'relative',
+                  zIndex: 2,
+                  maxWidth: '1440px',
+                  margin: '0 auto',
+                  padding: '0 1.5rem',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                  gap: '1.5rem',
+                }}
+              >
+                {/* History Card */}
+                <div
+                  style={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                    backdropFilter: 'blur(10px)',
+                    padding: '2.5rem 2rem',
+                    borderRadius: '4px',
+                    color: '#ffffff',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontFamily: "'Montserrat', sans-serif",
+                      fontSize: '18px',
+                      fontWeight: '600',
+                      color: '#ffffff',
+                      margin: '0 0 1rem',
+                      paddingBottom: '0.75rem',
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.25)',
+                    }}
+                  >
+                    History
+                  </h3>
+                  <p
+                    style={{
+                      fontFamily: "'Montserrat', sans-serif",
+                      fontSize: '13px',
+                      lineHeight: '1.75',
+                      color: '#e2e8f0',
+                      margin: 0,
+                    }}
+                  >
+                    {property.aboutSection?.historyText ||
+                      `Rooted along the banks of the White Oak Dr Bayou, this area has gracefully evolved from a 19th-century settlement into one of Houston's most established residential pockets. Blending heritage, modernity, and luxury. It is a place where tradition endures, and nature frames every moment.`}
+                  </p>
+                </div>
+
+                {/* Lifestyle Card */}
+                <div
+                  style={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                    backdropFilter: 'blur(10px)',
+                    padding: '2.5rem 2rem',
+                    borderRadius: '4px',
+                    color: '#ffffff',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontFamily: "'Montserrat', sans-serif",
+                      fontSize: '18px',
+                      fontWeight: '600',
+                      color: '#ffffff',
+                      margin: '0 0 1rem',
+                      paddingBottom: '0.75rem',
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.25)',
+                    }}
+                  >
+                    Lifestyle
+                  </h3>
+                  <p
+                    style={{
+                      fontFamily: "'Montserrat', sans-serif",
+                      fontSize: '13px',
+                      lineHeight: '1.75',
+                      color: '#e2e8f0',
+                      margin: 0,
+                    }}
+                  >
+                    {property.aboutSection?.lifestyleText ||
+                      `Life at White Oaks Dr unfolds with quiet elegance, generously proportioned, serene, and located for effortless connectivity. With leafy streets, nearby trails, artisan cafes and fine dining establishments, White Oak Dr offers a slower pace- ideal for those who value comfort, privacy, and convenience.`}
+                  </p>
+                </div>
+
+                {/* Neighborhood Card */}
+                <div
+                  style={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                    backdropFilter: 'blur(10px)',
+                    padding: '2.5rem 2rem',
+                    borderRadius: '4px',
+                    color: '#ffffff',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontFamily: "'Montserrat', sans-serif",
+                      fontSize: '18px',
+                      fontWeight: '600',
+                      color: '#ffffff',
+                      margin: '0 0 1rem',
+                      paddingBottom: '0.75rem',
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.25)',
+                    }}
+                  >
+                    Neighborhood
+                  </h3>
+                  <p
+                    style={{
+                      fontFamily: "'Montserrat', sans-serif",
+                      fontSize: '13px',
+                      lineHeight: '1.75',
+                      color: '#e2e8f0',
+                      margin: 0,
+                    }}
+                  >
+                    {property.aboutSection?.neighborhoodText ||
+                      `Perfectly positioned near The Heights and Memorial Park, Woodland Heights offers access to renowned schools, fine dining, and major transit routes while being immersed in a place where community is cherished, and each pathway reflects calm, refinement, and an enduring connection to the land.`}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Section 4: Neighborhood Images Expanding Cards Slider */}
+          <section
+            className="woodland-neighborhood-images"
+            style={{ maxWidth: '1440px', margin: '4rem auto 5rem', padding: '0 1.5rem' }}
+          >
+            <h2
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: '36px',
+                fontWeight: '400',
+                color: '#1a1a1a',
+                margin: '0 0 0.5rem',
+              }}
+            >
+              Neighborhood Images
+            </h2>
+            <hr style={{ border: 'none', borderTop: '1px solid #e8e1d6', margin: '1rem 0 2rem' }} />
+
+            {/* Accordion Cards Container */}
+            <div
+              style={{
+                display: 'flex',
+                gap: '1.25rem',
+                height: '480px',
+                width: '100%',
+              }}
+            >
+              {(property.neighborhoodAccordion && property.neighborhoodAccordion.length > 0
+                ? property.neighborhoodAccordion.map((item: any) => ({
+                    title: item.title,
+                    distance: item.distance || '',
+                    img: item.image ? getValidImageUrl(item.image) : '/media/gal-img-1.webp',
+                  }))
+                : [
+                    { title: 'Woodland Park', distance: '1.3 Miles', img: '/media/gal-img-1.webp' },
+                    { title: 'Hike And Bike Trail', distance: '0.8 Miles', img: '/media/gal-img-2.webp' },
+                    { title: 'White Oak Dr', distance: '0 Miles', img: '/media/gal-img-3.webp' },
+                    { title: 'Hike And Bike Trail', distance: '0.8 Miles', img: '/media/gal-img-4.webp' },
+                  ]
+              ).map((card: any, index: number) => {
+                const isOpen = activeNeighborhoodCard === index
+                return (
+                  <div
+                    key={index}
+                    onMouseEnter={() => setActiveNeighborhoodCard(index)}
+                    style={{
+                      flexGrow: isOpen ? 3.5 : 1,
+                      flexShrink: 1,
+                      flexBasis: '0%',
+                      position: 'relative',
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      transition: 'flex-grow 0.5s ease-in-out, box-shadow 0.5s ease-in-out',
+                      willChange: 'flex-grow',
+                      backgroundImage: `url(${card.img})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      boxShadow: isOpen ? '0 12px 30px rgba(0,0,0,0.3)' : '0 4px 15px rgba(0,0,0,0.1)',
+                    }}
+                  >
+                    {/* Dark Vignette Overlay */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        backgroundColor: isOpen ? 'rgba(0, 0, 0, 0.15)' : 'rgba(0, 0, 0, 0.45)',
+                        transition: 'background-color 0.5s ease',
+                      }}
+                    />
+
+                    {/* Card Content: Persistent DOM Nodes to eliminate reflow lag */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        zIndex: 2,
+                        color: '#ffffff',
+                        pointerEvents: 'none',
+                      }}
+                    >
+                      {/* Horizontal Text (Active Card) */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: '2rem',
+                          left: '2rem',
+                          right: '2rem',
+                          opacity: isOpen ? 1 : 0,
+                          transform: isOpen ? 'translateY(0)' : 'translateY(8px)',
+                          transition: 'opacity 0.25s linear 0.15s, transform 0.25s ease 0.15s',
+                        }}
+                      >
+                        <h3
+                          style={{
+                            fontFamily: "'Montserrat', sans-serif",
+                            fontSize: '22px',
+                            fontWeight: '700',
+                            color: '#ffffff',
+                            margin: '0 0 6px',
+                            textShadow: '0 2px 10px rgba(0,0,0,0.85)',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {card.title}
+                        </h3>
+                        <span
+                          style={{
+                            fontFamily: "'Montserrat', sans-serif",
+                            fontSize: '13px',
+                            color: '#f1f5f9',
+                            fontWeight: '500',
+                            textShadow: '0 2px 8px rgba(0,0,0,0.85)',
+                          }}
+                        >
+                          {card.distance}
+                        </span>
+                      </div>
+
+                      {/* Vertical Text (Collapsed Card) */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: '2.5rem',
+                          left: '1.75rem',
+                          writingMode: 'vertical-rl',
+                          transform: 'rotate(180deg)',
+                          display: 'flex',
+                          gap: '8px',
+                          whiteSpace: 'nowrap',
+                          opacity: isOpen ? 0 : 1,
+                          transition: 'opacity 0.2s linear',
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontFamily: "'Montserrat', sans-serif",
+                            fontSize: '18px',
+                            fontWeight: '700',
+                            color: '#ffffff',
+                            letterSpacing: '0.3px',
+                            textShadow: '0 2px 10px rgba(0,0,0,0.95)',
+                          }}
+                        >
+                          {card.title}
+                        </span>
+                        <span
+                          style={{
+                            fontFamily: "'Montserrat', sans-serif",
+                            fontSize: '13px',
+                            color: '#cbd5e1',
+                            fontWeight: '500',
+                            textShadow: '0 2px 8px rgba(0,0,0,0.95)',
+                          }}
+                        >
+                          {card.distance}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+
+          {/* Section 5: Experience Elegance In Every Detail Dark Banner */}
+          <section
+            className="woodland-elegance"
+            style={{
+              position: 'relative',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '100vw',
+              backgroundColor: '#1c1c1c',
+              color: '#ffffff',
+              padding: '5rem 1.5rem',
+              textAlign: 'center',
+              margin: '4rem 0 5rem',
+            }}
+          >
+            <div style={{ maxWidth: '1440px', margin: '0 auto' }}>
               <h2
                 style={{
                   fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: '38px',
-                  fontWeight: '400',
-                  color: '#1a1a1a',
-                  margin: '0 0 0.5rem',
+                  fontSize: '52px',
+                  fontWeight: '300',
+                  color: '#ffffff',
+                  margin: '0 0 1rem',
+                  letterSpacing: '0.8px',
                 }}
               >
-                Experience Your <span style={{ color: '#c1ac93' }}>Future Home</span>
+                {property.eleganceBanner?.title ? (
+                  property.eleganceBanner.title
+                ) : (
+                  <>
+                    Experience <span style={{ color: '#c5a880' }}>Elegance</span> In Every Detail
+                  </>
+                )}
               </h2>
+
+              {/* Thin Divider Line Below Title */}
               <div
                 style={{
-                  width: '40px',
+                  width: '100%',
+                  maxWidth: '1000px',
                   height: '1px',
-                  backgroundColor: '#c1ac93',
-                  margin: '0.75rem auto 0',
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  margin: '1.25rem auto 1.75rem',
                 }}
               />
-            </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
-              {/* Card 1: All Photos */}
+              <p
+                style={{
+                  fontFamily: "'Montserrat', sans-serif",
+                  fontSize: '14px',
+                  lineHeight: '1.8',
+                  color: '#e2e8f0',
+                  maxWidth: '1280px',
+                  margin: '0 auto',
+                  fontWeight: '300',
+                  letterSpacing: '0.2px',
+                }}
+              >
+                {property.eleganceBanner?.description ||
+                  `At Novel Signature Homes, we believe the essence of luxury homes lies in their details. Immerse yourself in a world of calm elegance, where thoughtful design and premium materials make each moment feel meaningfully enhanced.`}
+              </p>
+            </div>
+          </section>
+
+          {/* Section 6: Experience Your Future Home Cards */}
+          <section
+            className="woodland-experience"
+            style={{ maxWidth: '1440px', margin: '4.5rem auto 5.5rem', padding: '0 1.5rem' }}
+          >
+            <h2
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: '36px',
+                fontWeight: '400',
+                color: '#1a1a1a',
+                margin: '0 0 0.5rem',
+              }}
+            >
+              Experience Your <span style={{ color: '#8A561F' }}>Future Home</span>
+            </h2>
+            <hr style={{ border: 'none', borderTop: '1px solid #e8e1d6', margin: '1rem 0 2rem' }} />
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 380px))', gap: '1.5rem' }}>
+              {/* Card 1: All Photos (Always Available) */}
               <div
                 onClick={() => setActiveModal('photos')}
                 style={{
                   position: 'relative',
-                  height: '220px',
-                  backgroundColor: '#262626',
-                  cursor: 'pointer',
+                  height: '280px',
+                  borderRadius: '4px',
                   overflow: 'hidden',
+                  cursor: 'pointer',
+                  boxShadow: '0 6px 20px rgba(0,0,0,0.12)',
                 }}
               >
                 <img
-                  src={photosCoverUrl}
+                  src={photosCoverUrl || '/media/2436-WhiteOak-Render-1-1024x573.webp'}
                   alt="All Photos"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    transition: 'transform 0.5s ease',
+                  }}
                 />
                 <div
                   style={{
                     position: 'absolute',
                     inset: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.25)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    transition: 'background-color 0.3s ease',
                   }}
                 >
                   <div
                     style={{
-                      padding: '8px 20px',
+                      padding: '10px 28px',
                       border: '1px solid #ffffff',
                       color: '#ffffff',
-                      backgroundColor: 'rgba(0,0,0,0.4)',
+                      backgroundColor: 'rgba(0, 0, 0, 0.35)',
+                      backdropFilter: 'blur(4px)',
                       fontSize: '14px',
                       fontWeight: '500',
+                      fontFamily: "'Montserrat', sans-serif",
+                      letterSpacing: '0.5px',
                     }}
                   >
                     All Photos
@@ -506,95 +1866,280 @@ export default function PropertyDetailClient({
                 </div>
               </div>
 
-              {/* Card 2: All Floor Plans */}
-              <div
-                onClick={() => setActiveModal('floorplans')}
-                style={{
-                  position: 'relative',
-                  height: '220px',
-                  backgroundColor: '#171717',
-                  cursor: 'pointer',
-                  overflow: 'hidden',
-                }}
-              >
-                <img
-                  src={floorplanCoverUrl}
-                  alt="All Floor Plans"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    opacity: 0.4,
-                    filter: 'grayscale(100%)',
-                  }}
-                />
+              {/* Card 2: All Floor Plans (Conditional) */}
+              {hasFloorplans && (
                 <div
+                  onClick={() => setActiveModal('floorplans')}
                   style={{
-                    position: 'absolute',
-                    inset: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    position: 'relative',
+                    height: '280px',
+                    borderRadius: '4px',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    boxShadow: '0 6px 20px rgba(0,0,0,0.12)',
                   }}
                 >
+                  <img
+                    src={floorplanCoverUrl || '/media/2434-WhiteOak-Render-1-1024x573.webp'}
+                    alt="All Floor Plans"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 0.5s ease',
+                    }}
+                  />
                   <div
                     style={{
-                      padding: '8px 20px',
-                      border: '1px solid #ffffff',
-                      color: '#ffffff',
-                      backgroundColor: 'rgba(0,0,0,0.4)',
-                      fontSize: '14px',
-                      fontWeight: '500',
+                      position: 'absolute',
+                      inset: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.25)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'background-color 0.3s ease',
                     }}
                   >
-                    All Floor Plans
+                    <div
+                      style={{
+                        padding: '10px 28px',
+                        border: '1px solid #ffffff',
+                        color: '#ffffff',
+                        backgroundColor: 'rgba(0, 0, 0, 0.35)',
+                        backdropFilter: 'blur(4px)',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        fontFamily: "'Montserrat', sans-serif",
+                        letterSpacing: '0.5px',
+                      }}
+                    >
+                      All Floor Plans
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* Card 3: Video */}
-              <div
-                onClick={() => setActiveModal('video')}
-                style={{
-                  position: 'relative',
-                  height: '220px',
-                  backgroundColor: '#262626',
-                  cursor: 'pointer',
-                  overflow: 'hidden',
-                }}
-              >
-                <img
-                  src={videoCoverUrl}
-                  alt="Video Showcase"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
-                />
+              {/* Card 3: Video (Conditional) */}
+              {hasVideo && (
                 <div
+                  onClick={() => setActiveModal('video')}
                   style={{
-                    position: 'absolute',
-                    inset: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    position: 'relative',
+                    height: '280px',
+                    borderRadius: '4px',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    boxShadow: '0 6px 20px rgba(0,0,0,0.12)',
                   }}
                 >
+                  <img
+                    src={videoCoverUrl || '/media/gal-img-4.webp'}
+                    alt="Video"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 0.5s ease',
+                    }}
+                  />
                   <div
                     style={{
-                      padding: '8px 20px',
-                      border: '1px solid #ffffff',
-                      color: '#ffffff',
-                      backgroundColor: 'rgba(0,0,0,0.4)',
-                      fontSize: '14px',
-                      fontWeight: '500',
+                      position: 'absolute',
+                      inset: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.25)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'background-color 0.3s ease',
                     }}
                   >
-                    Video
+                    <div
+                      style={{
+                        padding: '10px 28px',
+                        border: '1px solid #ffffff',
+                        color: '#ffffff',
+                        backgroundColor: 'rgba(0, 0, 0, 0.35)',
+                        backdropFilter: 'blur(4px)',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        fontFamily: "'Montserrat', sans-serif",
+                        letterSpacing: '0.5px',
+                      }}
+                    >
+                      Video
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
+            </div>
+          </section>
+
+
+
+          {/* Section 7: Sub-Units Grid Section ("Explore More In Woodland Heights") */}
+          <section
+            className="woodland-explore"
+            id="sub-units-section"
+            style={{ maxWidth: '1440px', margin: '4rem auto 6rem', padding: '0 1.5rem' }}
+          >
+            <h2
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: '36px',
+                fontWeight: '400',
+                color: '#1a1a1a',
+                margin: '0 0 0.5rem',
+              }}
+            >
+              Explore More In <span style={{ color: '#8A561F' }}>{property.name?.toLowerCase().includes('woodland') ? 'Woodland Heights' : (property.name?.split(',')[0] || 'Woodland Heights')}</span>
+            </h2>
+            <hr style={{ border: 'none', borderTop: '1px solid #e8e1d6', margin: '1rem 0 2.5rem' }} />
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '2.5rem', marginBottom: '3.5rem' }}>
+              {(childProperties && childProperties.length > 0
+                ? childProperties
+                : [
+                    {
+                      id: 'w1',
+                      name: 'Woodland Heights #1',
+                      address: '2436 White Oak Dr, Houston, TX, 77009',
+                      slug: '2436-white-oak-dr-houston-tx-77009',
+                      status: 'for_sale',
+                      bannerImages: [{ url: '/media/2436-WhiteOak-Render-1-1024x573.webp' }],
+                      propertySummary: { numberOfBeds: '4', numberOfBaths: '5', acArea: '4,718' },
+                    },
+                    {
+                      id: 'w2',
+                      name: 'Woodland Heights #2',
+                      address: '2434 White Oak Dr, Houston, TX, 77009',
+                      slug: '2434-white-oak-dr-houston-tx-77009',
+                      status: 'for_sale',
+                      bannerImages: [{ url: '/media/2434-WhiteOak-Render-1-1024x573.webp' }],
+                      propertySummary: { numberOfBeds: '4', numberOfBaths: '6', acArea: '4,658' },
+                    },
+                  ]
+              ).map((unit: any) => {
+                const unitImg =
+                  (unit.bannerImages && unit.bannerImages.length > 0 && getValidImageUrl(unit.bannerImages[0])) ||
+                  '/media/2436-WhiteOak-Render-1-1024x573.webp'
+
+                return (
+                  <Link
+                    key={unit.id}
+                    href={`/properties/${unit.slug}`}
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    <div style={{ cursor: 'pointer' }}>
+                      {/* Card Image Container */}
+                      <div
+                        style={{
+                          position: 'relative',
+                          width: '100%',
+                          aspectRatio: '16/9',
+                          borderRadius: '4px',
+                          overflow: 'hidden',
+                          marginBottom: '1.25rem',
+                          boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
+                        }}
+                      >
+                        <img
+                          src={unitImg}
+                          alt={unit.name}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
+                        />
+                      </div>
+
+                      {/* Card Content Row */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          gap: '1rem',
+                        }}
+                      >
+                        {/* Title & Address (Left) */}
+                        <div>
+                          <h3
+                            style={{
+                              fontFamily: "'Montserrat', sans-serif",
+                              fontSize: '16px',
+                              fontWeight: '700',
+                              color: '#1a1a1a',
+                              margin: '0 0 4px',
+                            }}
+                          >
+                            {unit.name}
+                          </h3>
+                          <p
+                            style={{
+                              fontFamily: "'Montserrat', sans-serif",
+                              fontSize: '13px',
+                              color: '#64748b',
+                              margin: 0,
+                            }}
+                          >
+                            {unit.address}
+                          </p>
+                        </div>
+
+                        {/* Specs & Link (Right) */}
+                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                          <div
+                            style={{
+                              fontFamily: "'Montserrat', sans-serif",
+                              fontSize: '13px',
+                              fontWeight: '500',
+                              color: '#334155',
+                              marginBottom: '4px',
+                            }}
+                          >
+                            {unit.propertySummary?.numberOfBeds || '4'} BD | {unit.propertySummary?.numberOfBaths || '5'} BA | Liv Space : {unit.propertySummary?.acArea || '4,718'}
+                          </div>
+                          <span
+                            style={{
+                              fontFamily: "'Montserrat', sans-serif",
+                              fontSize: '13px',
+                              fontWeight: '600',
+                              color: '#8A561F',
+                              display: 'inline-block',
+                            }}
+                          >
+                            View Property &raquo;
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+
+            {/* View All Properties Button */}
+            <div style={{ textAlign: 'center' }}>
+              <Link
+                href="/properties"
+                style={{
+                  display: 'inline-block',
+                  padding: '12px 36px',
+                  border: '1px solid #1a1a1a',
+                  backgroundColor: '#ffffff',
+                  color: '#1a1a1a',
+                  textDecoration: 'none',
+                  fontFamily: "'Montserrat', sans-serif",
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  letterSpacing: '0.5px',
+                  borderRadius: '2px',
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                View All Properties
+              </Link>
             </div>
           </section>
         </div>
-      ) : (
+      ) ) : (
         <div>
           {/* Hero Property Image Carousel Banner */}
           <section style={{ maxWidth: '1440px', margin: '1rem auto 3rem', padding: '0 1.5rem' }}>
@@ -1348,7 +2893,13 @@ export default function PropertyDetailClient({
               {/* Accordion List */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 {/* 1. Property Details Accordion */}
-                <div style={{ border: '1px solid #dfcbb6', backgroundColor: '#181818', marginBottom: '1rem' }}>
+                <div
+                  style={{
+                    border: '1px solid #dfcbb6',
+                    backgroundColor: '#181818',
+                    marginBottom: '1rem',
+                  }}
+                >
                   <button
                     type="button"
                     onClick={() => toggleAccordion('propertyDetails')}
@@ -1378,7 +2929,9 @@ export default function PropertyDetailClient({
                       stroke="currentColor"
                       strokeWidth="2"
                       style={{
-                        transform: openAccordions.propertyDetails ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transform: openAccordions.propertyDetails
+                          ? 'rotate(180deg)'
+                          : 'rotate(0deg)',
                         transition: 'transform 0.25s ease',
                         color: '#dfcbb6',
                       }}
@@ -1479,7 +3032,13 @@ export default function PropertyDetailClient({
                 </div>
 
                 {/* 2. Beds & Baths Accordion */}
-                <div style={{ border: '1px solid #dfcbb6', backgroundColor: '#181818', marginBottom: '1rem' }}>
+                <div
+                  style={{
+                    border: '1px solid #dfcbb6',
+                    backgroundColor: '#181818',
+                    marginBottom: '1rem',
+                  }}
+                >
                   <button
                     type="button"
                     onClick={() => toggleAccordion('bedsAndBaths')}
@@ -1588,7 +3147,13 @@ export default function PropertyDetailClient({
                 </div>
 
                 {/* 3. Interior Features Accordion */}
-                <div style={{ border: '1px solid #dfcbb6', backgroundColor: '#181818', marginBottom: '1rem' }}>
+                <div
+                  style={{
+                    border: '1px solid #dfcbb6',
+                    backgroundColor: '#181818',
+                    marginBottom: '1rem',
+                  }}
+                >
                   <button
                     type="button"
                     onClick={() => toggleAccordion('interiorFeatures')}
@@ -1618,7 +3183,9 @@ export default function PropertyDetailClient({
                       stroke="currentColor"
                       strokeWidth="2"
                       style={{
-                        transform: openAccordions.interiorFeatures ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transform: openAccordions.interiorFeatures
+                          ? 'rotate(180deg)'
+                          : 'rotate(0deg)',
                         transition: 'transform 0.25s ease',
                         color: '#dfcbb6',
                       }}
@@ -1718,7 +3285,13 @@ export default function PropertyDetailClient({
                 </div>
 
                 {/* 4. Exterior Features Accordion */}
-                <div style={{ border: '1px solid #dfcbb6', backgroundColor: '#181818', marginBottom: '1rem' }}>
+                <div
+                  style={{
+                    border: '1px solid #dfcbb6',
+                    backgroundColor: '#181818',
+                    marginBottom: '1rem',
+                  }}
+                >
                   <button
                     type="button"
                     onClick={() => toggleAccordion('exteriorFeatures')}
@@ -1748,7 +3321,9 @@ export default function PropertyDetailClient({
                       stroke="currentColor"
                       strokeWidth="2"
                       style={{
-                        transform: openAccordions.exteriorFeatures ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transform: openAccordions.exteriorFeatures
+                          ? 'rotate(180deg)'
+                          : 'rotate(0deg)',
                         transition: 'transform 0.25s ease',
                         color: '#dfcbb6',
                       }}
@@ -1919,7 +3494,7 @@ export default function PropertyDetailClient({
                   margin: '0 0 2.5rem',
                 }}
               >
-                Experience Your <span style={{ color: '#c1ac93' }}>Future Home</span>
+                Experience Your <span style={{ color: '#8A561F' }}>Future Home</span>
               </h2>
 
               <div
@@ -2073,7 +3648,7 @@ export default function PropertyDetailClient({
                   margin: '0 0 2.5rem',
                 }}
               >
-                Other <span style={{ color: '#c1ac93' }}>Properties</span>
+                Other <span style={{ color: '#8A561F' }}>Properties</span>
               </h2>
 
               {/* Swiper Container Wrapper with Far Left & Right Navigation Arrows */}
@@ -2248,7 +3823,7 @@ export default function PropertyDetailClient({
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            backgroundColor: 'rgba(0, 0, 0, 0.85)',
             backdropFilter: 'blur(8px)',
             zIndex: 9999,
             display: 'flex',
@@ -2344,12 +3919,31 @@ export default function PropertyDetailClient({
 
                 {/* Images Grid */}
                 {(() => {
-                  const currentImages =
+                  const rawImages =
                     activePhotoTab === 'design'
                       ? property.allPhotos || []
                       : property.progressPhotos || []
 
-                  if (currentImages.length > 0) {
+                  const validUrls = rawImages
+                    .map(getValidImageUrl)
+                    .filter((url: string) => url !== '')
+
+                  const fallbackUrls = [
+                    '/media/1001Efront.webp',
+                    '/media/Potomac_Exterior_Updated.webp',
+                    '/media/034.webp',
+                    '/media/PineChase-1024x577.webp',
+                    '/media/3dtour.webp',
+                  ]
+
+                  const displayUrls =
+                    validUrls.length > 0
+                      ? validUrls
+                      : activePhotoTab === 'design'
+                        ? fallbackUrls
+                        : []
+
+                  if (displayUrls.length > 0) {
                     return (
                       <div
                         style={{
@@ -2359,34 +3953,30 @@ export default function PropertyDetailClient({
                           padding: '0.5rem',
                         }}
                       >
-                        {currentImages.map((image: any, idx: number) => {
-                          const url = typeof image === 'object' && image?.url ? image.url : ''
-                          if (!url) return null
-                          return (
-                            <div
-                              key={idx}
+                        {displayUrls.map((url: string, idx: number) => (
+                          <div
+                            key={idx}
+                            style={{
+                              borderRadius: '8px',
+                              overflow: 'hidden',
+                              border: '4px solid #ffffff',
+                              boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+                              aspectRatio: '16/10',
+                              backgroundColor: '#1e293b',
+                            }}
+                          >
+                            <img
+                              src={url}
+                              alt={`Gallery Image ${idx + 1}`}
                               style={{
-                                borderRadius: '8px',
-                                overflow: 'hidden',
-                                border: '4px solid #ffffff',
-                                boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
-                                aspectRatio: '16/10',
-                                backgroundColor: '#1e293b',
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                display: 'block',
                               }}
-                            >
-                              <img
-                                src={url}
-                                alt={`Gallery Image ${idx + 1}`}
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'cover',
-                                  display: 'block',
-                                }}
-                              />
-                            </div>
-                          )
-                        })}
+                            />
+                          </div>
+                        ))}
                       </div>
                     )
                   }

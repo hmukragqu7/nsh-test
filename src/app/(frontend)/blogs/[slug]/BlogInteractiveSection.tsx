@@ -33,7 +33,11 @@ export default function BlogInteractiveSection({
   const ctaBtnLabel = ctaLinkText || 'View All Properties'
   const ctaUrl = ctaLinkUrl || '/properties'
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
+  const [shareUrl, setShareUrl] = useState('')
+
+  React.useEffect(() => {
+    setShareUrl(window.location.href)
+  }, [])
 
   const handleShare = async () => {
     if (typeof window !== 'undefined' && navigator.share) {

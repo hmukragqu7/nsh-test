@@ -51,13 +51,22 @@ export default async function PropertyDetailPage({ params }: PropertyPageProps) 
     notFound()
   }
 
-  // 2. Fetch other properties for Swiper carousel
+  // 2. Fetch other properties for Swiper carousel (only individual / standalone properties, not under a parent)
   const otherResult = await payload.find({
     collection: 'properties',
     where: {
-      slug: {
-        not_equals: slug,
-      },
+      and: [
+        {
+          slug: {
+            not_equals: slug,
+          },
+        },
+        {
+          parentProperty: {
+            exists: false,
+          },
+        },
+      ],
     },
     limit: 10,
     depth: 2,

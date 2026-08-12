@@ -48,12 +48,11 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, settings }) =>
         right: 0,
         zIndex: 100,
         transition: 'background-color 0.4s ease, backdrop-filter 0.4s ease',
-        backgroundColor: 'rgba(0, 0, 0, 0.45)',
+        backgroundColor: 'rgba(15, 15, 15, 0.88)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         fontFamily: "'Montserrat', sans-serif",
-        ['--background' as any]: 'rgba(0, 0, 0, 0.45)',
       }}
       {...(theme ? { 'data-theme': theme } : {})}
     >

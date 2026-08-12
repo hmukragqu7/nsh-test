@@ -66,7 +66,7 @@ export default async function BlogDetailPage({ params }: BlogPageProps) {
       : 'AJ'
 
   const formattedDate = blog.publishedAt ? formatDate(blog.publishedAt) : 'May 5, 2026'
-  const readTimeStr = blog.readTime || '5 mins read'
+  const readTimeStr = `${blog.readingTime || 1} min read`
 
   return (
     <div className="bg-white text-[#1a1a1a] min-h-screen">
@@ -91,9 +91,7 @@ export default async function BlogDetailPage({ params }: BlogPageProps) {
               </Link>
             </li>
             <li>/</li>
-            <li className="text-[#1a1a1a] font-medium line-clamp-1 max-w-[320px]">
-              {blog.title}
-            </li>
+            <li className="text-[#1a1a1a] font-medium line-clamp-1 max-w-[320px]">{blog.title}</li>
           </ol>
         </nav>
 
@@ -111,7 +109,7 @@ export default async function BlogDetailPage({ params }: BlogPageProps) {
 
         {/* Excerpt Summary */}
         {blog.excerpt && (
-          <p className="text-[1.1rem] text-[#334155] italic border-l-3 border-[#c1ac93] pl-5 mb-8 leading-relaxed">
+          <p className="text-[1.1rem] text-[#334155] italic border-l-3 border-[#8A561F] pl-5 mb-8 leading-relaxed">
             {blog.excerpt}
           </p>
         )}
@@ -146,7 +144,9 @@ export default async function BlogDetailPage({ params }: BlogPageProps) {
             <div className="nsh-explore-grid">
               {exploreMoreBlogs.map((item: any) => {
                 const itemImg = item.heroImage?.url || '/media/034.webp'
-                const formattedDateStr = item.publishedAt ? formatDateNumeric(item.publishedAt) : '05/08/2025'
+                const formattedDateStr = item.publishedAt
+                  ? formatDateNumeric(item.publishedAt)
+                  : '05/08/2025'
 
                 return (
                   <article key={item.id} className="nsh-explore-item">
@@ -183,7 +183,7 @@ export default async function BlogDetailPage({ params }: BlogPageProps) {
 
                       <div className="nsh-explore-meta-stack">
                         {formattedDateStr && <span>{formattedDateStr}</span>}
-                        <span>{item.readTime || '4 mins read'}</span>
+                        <span>{`${item.readingTime || 1} min read`}</span>
                       </div>
                     </div>
                   </article>

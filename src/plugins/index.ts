@@ -8,6 +8,7 @@ import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { searchFields } from '@/search/fieldOverrides'
+import { advancedSeoFields } from '@/fields/seoFields'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { pushToFrappeERPHook } from '@/hooks/pushToFrappeERP'
 import { syncToCF7TrackerHook } from '@/hooks/syncToCF7Tracker'
@@ -58,6 +59,7 @@ export const plugins: Plugin[] = [
     generateURL,
     uploadsCollection: 'media',
     tabbedUI: true,
+    fields: ({ defaultFields }) => [...defaultFields, ...advancedSeoFields],
   }),
   formBuilderPlugin({
     fields: {

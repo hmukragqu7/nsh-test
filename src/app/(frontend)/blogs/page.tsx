@@ -93,7 +93,7 @@ export default async function BlogsIndexPage() {
               <div className="flex flex-col justify-center">
                 <p className="text-[1.05rem] font-normal text-[#1a1a1a] mb-1">Latest</p>
 
-                <p className="nsh-text-meta mb-5">{featuredPost.readTime || '5 mins read'}</p>
+                <p className="nsh-text-meta mb-5">{`${featuredPost.readingTime || 1} min read`}</p>
 
                 <h2 className="nsh-title-h2 mb-5">
                   <Link
@@ -185,7 +185,7 @@ export default async function BlogsIndexPage() {
 
                       <div className="flex flex-col items-end text-[#8b8b8b] text-[0.8rem]">
                         {blog.publishedAt && <span>{formatDate(blog.publishedAt)}</span>}
-                        <span>{blog.readTime || '4 mins read'}</span>
+                        <span>{`${blog.readingTime || 1} min read`}</span>
                       </div>
                     </div>
                   </article>

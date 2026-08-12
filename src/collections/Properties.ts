@@ -3,6 +3,7 @@ import { slugField } from 'payload'
 import { authenticatedOrPublished } from '../access/authenticatedOrPublished'
 import { isAdminOrEditor, canAccessAdminPanel } from '../access/roles'
 import { generatePreviewPath } from '../utilities/generatePreviewPath'
+import { advancedSeoFields } from '../fields/seoFields'
 
 export const Properties: CollectionConfig = {
   slug: 'properties',
@@ -31,7 +32,7 @@ export const Properties: CollectionConfig = {
     update: canAccessAdminPanel,
   },
   fields: [
-    // Property Status (For Sale / Sold Out / Under Contract)
+    // ── SIDEBAR FIELDS (root level = renders in right sidebar) ──────────────
     {
       name: 'status',
       type: 'select',
@@ -42,386 +43,419 @@ export const Properties: CollectionConfig = {
         { label: 'Sold Out', value: 'sold' },
         { label: 'Under Contract', value: 'under_contract' },
       ],
-      admin: {
-        position: 'sidebar',
-      },
+      admin: { position: 'sidebar' },
     },
-
-    // Featured Checkbox
     {
       name: 'featured',
       type: 'checkbox',
       label: 'Featured Property',
       defaultValue: false,
-      admin: {
-        position: 'sidebar',
-      },
+      admin: { position: 'sidebar' },
     },
-
-    // Is Group Parent Checkbox
     {
       name: 'isGroupParent',
       type: 'checkbox',
       label: 'Is Group Parent/Community',
       defaultValue: false,
-      admin: {
-        position: 'sidebar',
-      },
+      admin: { position: 'sidebar' },
     },
-
-    // Parent Property Relationship
     {
       name: 'parentProperty',
       type: 'relationship',
       relationTo: 'properties',
       label: 'Parent Community/Group',
-      admin: {
-        position: 'sidebar',
-      },
-      filterOptions: {
-        isGroupParent: { equals: true },
-      },
+      filterOptions: { isGroupParent: { equals: true } },
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'publishedAt',
+      type: 'date',
+      admin: { position: 'sidebar' },
     },
 
-    // 1. Banner Images
+    // ── TABS ────────────────────────────────────────────────────────────────
     {
-      name: 'bannerImages',
-      type: 'upload',
-      relationTo: 'media',
-      hasMany: true,
-      label: 'Banner Images',
-    },
-
-    // 2. Name
-    {
-      name: 'name',
-      type: 'text',
-      required: true,
-      label: 'Name',
-    },
-
-    // 3. Address
-    {
-      name: 'address',
-      type: 'text',
-      label: 'Address',
-    },
-
-    // 4. Price
-    {
-      name: 'price',
-      type: 'text',
-      label: 'Price',
-    },
-
-    // Description
-    {
-      name: 'description',
-      type: 'textarea',
-      label: 'Description',
-    },
-
-    // 5. Property Summary
-    {
-      name: 'propertySummary',
-      type: 'group',
-      label: 'Property Summary',
-      fields: [
+      type: 'tabs',
+      tabs: [
+        // ── Content tab ───────────────────────────────────────────────────
         {
-          name: 'numberOfBeds',
-          type: 'text',
-          label: 'Number of Beds',
-        },
-        {
-          name: 'numberOfBaths',
-          type: 'text',
-          label: 'Number of Baths',
-        },
-        {
-          name: 'acArea',
-          type: 'text',
-          label: 'AC Area',
-        },
-        {
-          name: 'designTheme',
-          type: 'text',
-          label: 'Design Theme',
-        },
-      ],
-    },
-
-    // 6. Broker Information
-    {
-      name: 'brokerInformation',
-      type: 'group',
-      label: 'Broker Information',
-      fields: [
-        {
-          name: 'brokerName',
-          type: 'text',
-          label: 'Broker Name',
-        },
-        {
-          name: 'companyName',
-          type: 'text',
-          label: 'Company Name',
-        },
-        {
-          name: 'brokerImage',
-          type: 'upload',
-          relationTo: 'media',
-          label: 'Broker Image',
-        },
-      ],
-    },
-
-    // 7. Builder Name
-    {
-      name: 'builderName',
-      type: 'text',
-      label: 'Builder Name',
-    },
-
-    // 8. Architect Name
-    {
-      name: 'architectName',
-      type: 'text',
-      label: 'Architect Name',
-    },
-
-    // 9. Interior Design Name
-    {
-      name: 'interiorDesignName',
-      type: 'text',
-      label: 'Interior Design Name',
-    },
-
-    // 10. Features And Amenities
-    {
-      name: 'featuresAndAmenities',
-      type: 'group',
-      label: 'Features And Amenities',
-      fields: [
-        // a) Property Details
-        {
-          name: 'propertyDetails',
-          type: 'group',
-          label: 'Property Details',
+          label: 'Content',
           fields: [
             {
-              name: 'propertyType',
+              name: 'bannerImages',
+              type: 'upload',
+              relationTo: 'media',
+              hasMany: true,
+              label: 'Banner Images',
+            },
+            { name: 'name', type: 'text', required: true, label: 'Name' },
+            { name: 'address', type: 'text', label: 'Address' },
+            { name: 'price', type: 'text', label: 'Price' },
+            { name: 'description', type: 'textarea', label: 'Description' },
+            {
+              name: 'contactForm',
+              type: 'relationship',
+              relationTo: 'forms',
+              label: 'Contact Form',
+              admin: {
+                description: 'Select the contact form to display in Section 6.',
+              },
+            },
+
+            // Property Summary (Single home only)
+            {
+              name: 'propertySummary',
+              type: 'group',
+              label: 'Property Summary',
+              admin: { condition: (data) => !data?.isGroupParent },
+              fields: [
+                { name: 'numberOfBeds', type: 'text', label: 'Number of Beds' },
+                { name: 'numberOfBaths', type: 'text', label: 'Number of Baths' },
+                { name: 'acArea', type: 'text', label: 'AC Area' },
+                { name: 'designTheme', type: 'text', label: 'Design Theme' },
+              ],
+            },
+
+            // Broker Information (Single home only)
+            {
+              name: 'brokerInformation',
+              type: 'group',
+              label: 'Broker Information',
+              admin: { condition: (data) => !data?.isGroupParent },
+              fields: [
+                { name: 'brokerName', type: 'text', label: 'Broker Name' },
+                { name: 'companyName', type: 'text', label: 'Company Name' },
+                { name: 'brokerImage', type: 'upload', relationTo: 'media', label: 'Broker Image' },
+              ],
+            },
+
+            {
+              name: 'builderName',
               type: 'text',
-              label: 'Property Type',
+              label: 'Builder Name',
+              admin: { condition: (data) => !data?.isGroupParent },
             },
             {
-              name: 'yearBuilt',
+              name: 'architectName',
               type: 'text',
-              label: 'Year Built',
+              label: 'Architect Name',
+              admin: { condition: (data) => !data?.isGroupParent },
             },
             {
-              name: 'totalInteriorLivableArea',
+              name: 'interiorDesignName',
               type: 'text',
-              label: 'Total Interior Livable Area',
+              label: 'Interior Design Name',
+              admin: { condition: (data) => !data?.isGroupParent },
+            },
+
+            // Features & Amenities (Single home only)
+            {
+              name: 'featuresAndAmenities',
+              type: 'group',
+              label: 'Features And Amenities',
+              admin: { condition: (data) => !data?.isGroupParent },
+              fields: [
+                {
+                  name: 'propertyDetails',
+                  type: 'group',
+                  label: 'Property Details',
+                  fields: [
+                    { name: 'propertyType', type: 'text', label: 'Property Type' },
+                    { name: 'yearBuilt', type: 'text', label: 'Year Built' },
+                    {
+                      name: 'totalInteriorLivableArea',
+                      type: 'text',
+                      label: 'Total Interior Livable Area',
+                    },
+                    { name: 'lotSize', type: 'text', label: 'Lot Size' },
+                  ],
+                },
+                {
+                  name: 'bedsAndBaths',
+                  type: 'group',
+                  label: 'Beds & Baths',
+                  fields: [
+                    { name: 'beds', type: 'text', label: 'Beds' },
+                    { name: 'baths', type: 'text', label: 'Baths' },
+                    { name: 'numberOfFloors', type: 'text', label: 'Number of Floors' },
+                  ],
+                },
+                {
+                  name: 'interiorFeatures',
+                  type: 'group',
+                  label: 'Interior Features',
+                  fields: [
+                    { name: 'firstFloor', type: 'textarea', label: '1st Floor' },
+                    { name: 'secondFloor', type: 'textarea', label: '2nd Floor' },
+                    { name: 'thirdFloor', type: 'textarea', label: '3rd Floor' },
+                    { name: 'additionalFeatures', type: 'textarea', label: 'Additional Features' },
+                  ],
+                },
+                {
+                  name: 'exteriorFeatures',
+                  type: 'group',
+                  label: 'Exterior Features',
+                  fields: [
+                    { name: 'garage', type: 'text', label: 'Garage' },
+                    { name: 'yard', type: 'text', label: 'Yard' },
+                    { name: 'siding', type: 'text', label: 'Siding' },
+                    { name: 'pool', type: 'text', label: 'Pool' },
+                    { name: 'driveway', type: 'text', label: 'Driveway' },
+                    { name: 'roof', type: 'text', label: 'Roof' },
+                    { name: 'deckPatio', type: 'text', label: 'Deck/ Patio' },
+                  ],
+                },
+              ],
+            },
+
+            {
+              name: 'allPhotos',
+              type: 'upload',
+              relationTo: 'media',
+              hasMany: true,
+              label: 'All Photos',
             },
             {
-              name: 'lotSize',
-              type: 'text',
-              label: 'Lot Size',
+              name: 'progressPhotos',
+              type: 'upload',
+              relationTo: 'media',
+              hasMany: true,
+              label: 'Progress Photos',
+              admin: { condition: (data) => !data?.isGroupParent },
+            },
+            {
+              name: 'allFloorPlanPhotos',
+              type: 'upload',
+              relationTo: 'media',
+              hasMany: true,
+              label: 'All Floor Plan Photos',
+            },
+
+            // Floor Plans
+            {
+              name: 'floorPlans',
+              type: 'array',
+              label: 'Floor Plans',
+              fields: [
+                { name: 'floorName', type: 'text', label: 'Floor Name', required: true },
+                { name: 'areaSize', type: 'text', label: 'Area Size (e.g. 3,194 SQFT)' },
+                {
+                  name: 'image',
+                  type: 'upload',
+                  relationTo: 'media',
+                  label: 'Floor Plan Image',
+                  required: true,
+                },
+              ],
+            },
+
+            // Video Section (Single home only)
+            {
+              name: 'video',
+              type: 'group',
+              label: 'Video Section',
+              admin: { condition: (data) => !data?.isGroupParent },
+              fields: [
+                {
+                  name: 'videoType',
+                  type: 'select',
+                  label: 'Video Source',
+                  defaultValue: 'youtube',
+                  options: [
+                    { label: 'YouTube Link', value: 'youtube' },
+                    { label: 'Uploaded Video File', value: 'file' },
+                  ],
+                },
+                {
+                  name: 'youtubeUrl',
+                  type: 'text',
+                  label: 'YouTube URL',
+                  admin: {
+                    placeholder: 'https://www.youtube.com/watch?v=...',
+                    condition: (_, siblingData) => siblingData?.videoType === 'youtube',
+                  },
+                },
+                {
+                  name: 'videoFile',
+                  type: 'upload',
+                  relationTo: 'media',
+                  label: 'Video File',
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.videoType === 'file',
+                  },
+                },
+              ],
             },
           ],
         },
 
-        // b) Beds & Baths
+        // ── Community Content Tab (For Parent Community pages like Woodland Heights) ──────
         {
-          name: 'bedsAndBaths',
-          type: 'group',
-          label: 'Beds & Baths',
-          fields: [
-            {
-              name: 'beds',
-              type: 'text',
-              label: 'Beds',
-            },
-            {
-              name: 'baths',
-              type: 'text',
-              label: 'Baths',
-            },
-            {
-              name: 'numberOfFloors',
-              type: 'text',
-              label: 'Number of Floors',
-            },
-          ],
-        },
-
-        // c) Interior Features
-        {
-          name: 'interiorFeatures',
-          type: 'group',
-          label: 'Interior Features',
-          fields: [
-            {
-              name: 'firstFloor',
-              type: 'textarea',
-              label: '1st Floor',
-            },
-            {
-              name: 'secondFloor',
-              type: 'textarea',
-              label: '2nd Floor',
-            },
-            {
-              name: 'thirdFloor',
-              type: 'textarea',
-              label: '3rd Floor',
-            },
-            {
-              name: 'additionalFeatures',
-              type: 'textarea',
-              label: 'Additional Features',
-            },
-          ],
-        },
-
-        // d) Exterior Features
-        {
-          name: 'exteriorFeatures',
-          type: 'group',
-          label: 'Exterior Features',
-          fields: [
-            {
-              name: 'garage',
-              type: 'text',
-              label: 'Garage',
-            },
-            {
-              name: 'yard',
-              type: 'text',
-              label: 'Yard',
-            },
-            {
-              name: 'siding',
-              type: 'text',
-              label: 'Siding',
-            },
-            {
-              name: 'pool',
-              type: 'text',
-              label: 'Pool',
-            },
-            {
-              name: 'driveway',
-              type: 'text',
-              label: 'Driveway',
-            },
-            {
-              name: 'roof',
-              type: 'text',
-              label: 'Roof',
-            },
-            {
-              name: 'deckPatio',
-              type: 'text',
-              label: 'Deck/ Patio',
-            },
-          ],
-        },
-      ],
-    },
-
-    // 11. All Photos
-    {
-      name: 'allPhotos',
-      type: 'upload',
-      relationTo: 'media',
-      hasMany: true,
-      label: 'All Photos',
-    },
-
-    // 11b. Progress Photos
-    {
-      name: 'progressPhotos',
-      type: 'upload',
-      relationTo: 'media',
-      hasMany: true,
-      label: 'Progress Photos',
-    },
-
-    // 12. All Floor Plan Photos
-    {
-      name: 'allFloorPlanPhotos',
-      type: 'upload',
-      relationTo: 'media',
-      hasMany: true,
-      label: 'All Floor Plan Photos',
-    },
-
-    // 12b. Floor Plans List
-    {
-      name: 'floorPlans',
-      type: 'array',
-      label: 'Floor Plans',
-      fields: [
-        {
-          name: 'floorName',
-          type: 'text',
-          label: 'Floor Name',
-          required: true,
-        },
-        {
-          name: 'areaSize',
-          type: 'text',
-          label: 'Area Size (e.g. 3,194 SQFT)',
-        },
-        {
-          name: 'image',
-          type: 'upload',
-          relationTo: 'media',
-          label: 'Floor Plan Image',
-          required: true,
-        },
-      ],
-    },
-
-    // 13. Video Section
-    {
-      name: 'video',
-      type: 'group',
-      label: 'Video Section',
-      fields: [
-        {
-          name: 'videoType',
-          type: 'select',
-          label: 'Video Source',
-          defaultValue: 'youtube',
-          options: [
-            { label: 'YouTube Link', value: 'youtube' },
-            { label: 'Uploaded Video File', value: 'file' },
-          ],
-        },
-        {
-          name: 'youtubeUrl',
-          type: 'text',
-          label: 'YouTube URL',
+          label: 'Community Content',
           admin: {
-            placeholder: 'https://www.youtube.com/watch?v=...',
-            condition: (_, siblingData) => siblingData?.videoType === 'youtube',
+            condition: (data) => Boolean(data?.isGroupParent),
           },
+          fields: [
+            // Team & Partners Bar
+            {
+              name: 'projectTeam',
+              type: 'group',
+              label: 'Project Team & Partners Bar',
+              fields: [
+                {
+                  name: 'brokerName',
+                  type: 'text',
+                  label: 'Broker Name',
+                  defaultValue: 'Ed Wolff',
+                },
+                {
+                  name: 'builderName',
+                  type: 'text',
+                  label: 'Builder Name',
+                  defaultValue: 'Novel Signature Homes',
+                },
+                {
+                  name: 'architectName',
+                  type: 'text',
+                  label: 'Architecture Name',
+                  defaultValue: 'Todd Rice',
+                },
+                {
+                  name: 'interiorDesignerName',
+                  type: 'text',
+                  label: 'Interior Designer Name',
+                  defaultValue: 'Steve Clifton',
+                },
+              ],
+            },
+
+            // About Section & 3 Glass Cards (Woodland template only)
+            {
+              name: 'aboutSection',
+              type: 'group',
+              label: 'About Community Section',
+              admin: {
+                condition: (data) => {
+                  if (!data?.isGroupParent) return false
+                  const slug = data?.slug || ''
+                  const name = data?.name || ''
+                  return (
+                    slug !== 'potomac' &&
+                    slug !== 'the-potomac' &&
+                    !name.toLowerCase().includes('potomac')
+                  )
+                },
+              },
+              fields: [
+                { name: 'aboutTitle', type: 'text', label: 'About Title', defaultValue: 'About Woodland Heights' },
+                { name: 'aboutIntro', type: 'textarea', label: 'About Lead Intro Paragraph' },
+                { name: 'aboutBackgroundImage', type: 'upload', relationTo: 'media', label: 'Background Image (Aerial View)' },
+                { name: 'historyText', type: 'textarea', label: 'History Card Text' },
+                { name: 'lifestyleText', type: 'textarea', label: 'Lifestyle Card Text' },
+                { name: 'neighborhoodText', type: 'textarea', label: 'Neighborhood Card Text' },
+              ],
+            },
+
+            // Expanding Accordion Cards (Woodland template only)
+            {
+              name: 'neighborhoodAccordion',
+              type: 'array',
+              label: 'Neighborhood Accordion Cards',
+              admin: {
+                condition: (data) => {
+                  if (!data?.isGroupParent) return false
+                  const slug = data?.slug || ''
+                  const name = data?.name || ''
+                  return (
+                    slug !== 'potomac' &&
+                    slug !== 'the-potomac' &&
+                    !name.toLowerCase().includes('potomac')
+                  )
+                },
+              },
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  label: 'Card Title (e.g. Woodland Park)',
+                  required: true,
+                },
+                { name: 'distance', type: 'text', label: 'Distance Subtitle (e.g. 1.3 Miles)' },
+                {
+                  name: 'image',
+                  type: 'upload',
+                  relationTo: 'media',
+                  label: 'Card Background Image',
+                },
+              ],
+            },
+
+            // Dark Elegance Banner (Woodland template only)
+            {
+              name: 'eleganceBanner',
+              type: 'group',
+              label: 'Dark Elegance Banner',
+              admin: {
+                condition: (data) => {
+                  if (!data?.isGroupParent) return false
+                  const slug = data?.slug || ''
+                  const name = data?.name || ''
+                  return (
+                    slug !== 'potomac' &&
+                    slug !== 'the-potomac' &&
+                    !name.toLowerCase().includes('potomac')
+                  )
+                },
+              },
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  label: 'Banner Title',
+                  defaultValue: 'Experience Elegance In Every Detail',
+                },
+                { name: 'description', type: 'textarea', label: 'Banner Body Paragraph' },
+              ],
+            },
+          ],
         },
+
+        // ── SEO tab ───────────────────────────────────────────────────────
         {
-          name: 'videoFile',
-          type: 'upload',
-          relationTo: 'media',
-          label: 'Video File',
-          admin: {
-            condition: (_, siblingData) => siblingData?.videoType === 'file',
-          },
+          label: 'SEO',
+          fields: [
+            {
+              name: 'meta',
+              type: 'group',
+              label: 'SEO',
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  label: 'Meta Title',
+                  admin: { description: 'Recommended: 50–60 characters.' },
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  label: 'Meta Description',
+                  admin: { description: 'Recommended: 150–160 characters.' },
+                },
+                {
+                  name: 'image',
+                  type: 'upload',
+                  relationTo: 'media',
+                  label: 'OG / Social Image',
+                },
+                ...advancedSeoFields,
+              ],
+            },
+          ],
         },
       ],
     },
 
-    // URL slug for frontend dynamic page routing
+    // Slug (renders in right sidebar automatically)
     slugField(),
   ],
   timestamps: true,

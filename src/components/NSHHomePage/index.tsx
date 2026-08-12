@@ -229,64 +229,76 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
         .nsh-hero-overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(130deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.25) 80%);
+          background: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.15) 50%, rgba(0, 0, 0, 0.35) 100%);
           z-index: 1;
         }
-        .nsh-hero-content {
+        .nsh-hero-container {
           position: relative;
           z-index: 2;
-          padding: 35vh 75px 80px;
-          max-width: 720px;
+          max-width: 1440px;
+          margin: 0 auto;
+          width: 100%;
+          padding-left: 1.5rem;
+          padding-right: 1.5rem;
+          box-sizing: border-box;
+        }
+        .nsh-hero-content {
+          padding-top: 34vh;
+          padding-bottom: 80px;
+          max-width: 680px;
         }
         .nsh-hero-title {
           font-family: var(--font-serif);
-          font-size: clamp(52px, 3vw, 90px);
+          font-size: clamp(44px, 4.5vw, 68px);
           font-weight: 400;
           color: var(--nsh-white);
-          line-height: 1.05;
+          line-height: 1.1;
           letter-spacing: 3px;
           margin: 0 0 1.25rem;
           text-transform: uppercase;
         }
         .nsh-hero-desc {
           font-family: var(--font-sans);
-          font-size: 18px;
+          font-size: 16px;
           font-weight: 400;
           color: var(--nsh-white);
-          line-height: 1.8;
-          margin: 0 0 2.5rem;
-          max-width: 520px;
-          opacity: 0.92;
+          line-height: 1.65;
+          margin: 0 0 2rem;
+          max-width: 540px;
+          opacity: 0.95;
         }
         .nsh-btn-outline {
           display: inline-flex;
           align-items: center;
-          gap: 0.5rem;
+          justify-content: center;
           font-family: var(--font-sans);
-          font-size: 14px;
-          font-weight: 500;
-          letter-spacing: 1.5px;
-          text-transform: uppercase;
+          font-size: 13px;
+          font-weight: 400;
+          letter-spacing: 0.5px;
+          text-transform: none;
           color: var(--nsh-white);
-          border: 1px solid var(--nsh-white);
-          padding: 14px 28px;
+          border: 1px solid rgba(255, 255, 255, 0.85);
+          padding: 12px 28px;
           text-decoration: none;
-          transition: background-color 0.3s, color 0.3s;
+          transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
           cursor: pointer;
           background: transparent;
+          border-radius: 0px;
         }
         .nsh-btn-outline:hover {
           background: var(--nsh-white);
           color: var(--nsh-dark);
+          border-color: var(--nsh-white);
         }
 
         /* ── Section common ── */
         .nsh-section {
-          padding: 90px 75px;
+          padding: 90px 1.5rem;
         }
         .nsh-section-inner {
-          max-width: 1400px;
+          max-width: 1440px;
           margin: 0 auto;
+          width: 100%;
         }
 
         /* ── Section headings ── */
@@ -317,7 +329,7 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
 
         /* ── Featured Listings Draggable Track ── */
         .nsh-slider-section {
-          padding: 70px 75px;
+          padding: 70px 1.5rem;
           background: #f9f6f1;
         }
         .nsh-slider-wrap {
@@ -399,7 +411,7 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
         /* ── Timeless Comfort ── */
         .nsh-timeless {
           background: #ffffff;
-          padding: 80px 75px;
+          padding: 80px 1.5rem;
         }
         .nsh-timeless-inner {
           max-width: 1440px;
@@ -451,7 +463,7 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
         /* ── Why Choose Us ── */
         .nsh-why {
           position: relative;
-          padding: 80px 75px;
+          padding: 80px 1.5rem;
           background: #111111;
           color: #ffffff;
           overflow: hidden;
@@ -533,7 +545,7 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
         /* ── VR Tour ── */
         .nsh-vr {
           background: #ffffff;
-          padding: 80px 75px;
+          padding: 80px 1.5rem;
         }
         .nsh-vr-inner {
           max-width: 1440px;
@@ -609,7 +621,7 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
         /* ── Our Listings ── */
         .nsh-listings {
           position: relative;
-          padding: 90px 75px;
+          padding: 90px 1.5rem;
           background: #fafaf8 url("/media/topography.svg") repeat;
           background-size: cover;
           background-position: center;
@@ -838,7 +850,7 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
         /* ── Newest Residences Video Section ── */
         .nsh-newest {
           background: #ffffff;
-          padding: 90px 75px;
+          padding: 90px 1.5rem;
         }
         .nsh-newest-title {
           font-family: var(--font-serif);
@@ -875,7 +887,7 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
         /* ── Contact Section ── */
         .nsh-contact {
           position: relative;
-          padding: 100px 75px;
+          padding: 100px 1.5rem;
           background: #fafaf8 url("/media/topography.svg") repeat;
           background-size: cover;
           background-position: center;
@@ -980,7 +992,8 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
 
         /* ── Responsive ── */
         @media (max-width: 1024px) {
-          .nsh-hero-content { padding: 35vh 40px 60px; }
+          .nsh-hero-container { padding-left: 1.5rem; padding-right: 1.5rem; }
+          .nsh-hero-content { padding-top: 30vh; padding-bottom: 60px; }
           .nsh-section, .nsh-slider-section, .nsh-timeless, .nsh-why, .nsh-vr, .nsh-listings, .nsh-concierge, .nsh-newest, .nsh-contact {
             padding-left: 40px;
             padding-right: 40px;
@@ -990,7 +1003,8 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
           .nsh-contact-grid { gap: 3rem; }
         }
         @media (max-width: 768px) {
-          .nsh-hero-content { padding: 35vh 24px 40px; }
+          .nsh-hero-container { padding-left: 1.5rem; padding-right: 1.5rem; }
+          .nsh-hero-content { padding-top: 25vh; padding-bottom: 40px; }
           .nsh-section, .nsh-slider-section, .nsh-timeless, .nsh-why, .nsh-vr, .nsh-listings, .nsh-concierge, .nsh-newest, .nsh-contact {
             padding-left: 24px;
             padding-right: 24px;
@@ -1016,26 +1030,14 @@ export default function NSHHomePage({ pageData, initialListings }: NSHHomePagePr
           <source src={heroVideo} type="video/mp4" />
         </video>
         <div className="nsh-hero-overlay" />
-        <div className="nsh-hero-content">
-          <h1 className="nsh-hero-title">{heroTitle}</h1>
-          <p className="nsh-hero-desc">{heroDesc}</p>
-          <Link href={heroBtnLink} className="nsh-btn-outline">
-            {heroBtnText}
-            <svg
-              width="16"
-              height="16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-              />
-            </svg>
-          </Link>
+        <div className="nsh-hero-container">
+          <div className="nsh-hero-content">
+            <h1 className="nsh-hero-title">{heroTitle}</h1>
+            <p className="nsh-hero-desc">{heroDesc}</p>
+            <Link href={heroBtnLink} className="nsh-btn-outline">
+              {heroBtnText}
+            </Link>
+          </div>
         </div>
       </section>
 

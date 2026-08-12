@@ -9,14 +9,34 @@ import { AdminBar } from '@/components/AdminBar'
 import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
 import { Providers } from '@/providers'
-import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { draftMode } from 'next/headers'
 import { getCachedGlobal } from '@/utilities/getGlobals'
-
 import { FloatingContactWidget } from '@/components/FloatingContactWidget'
-import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
+import './globals.css'
+
+const themeInitScript = `(function () {
+  function getImplicitPreference() {
+    var mediaQuery = '(prefers-color-scheme: dark)'
+    var mql = window.matchMedia(mediaQuery)
+    var hasImplicitPreference = typeof mql.matches === 'boolean'
+    if (hasImplicitPreference) return mql.matches ? 'dark' : 'light'
+    return null
+  }
+  function themeIsValid(theme) {
+    return theme === 'light' || theme === 'dark'
+  }
+  var themeToSet = 'light'
+  var preference = window.localStorage.getItem('payload-theme')
+  if (themeIsValid(preference)) {
+    themeToSet = preference
+  } else {
+    var implicitPreference = getImplicitPreference()
+    if (implicitPreference) themeToSet = implicitPreference
+  }
+  document.documentElement.setAttribute('data-theme', themeToSet)
+})();`
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { isEnabled } = await draftMode()
@@ -26,7 +46,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
       <head>
-        <InitTheme />
+        <script id="theme-script" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <link href={faviconUrl} rel="icon" sizes="32x32" />
         <link href={faviconUrl} rel="icon" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

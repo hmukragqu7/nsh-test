@@ -17,6 +17,8 @@ import { MediaBlock } from '../../blocks/MediaBlock/config'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateDelete, revalidateBlog } from './hooks/revalidateBlog'
+import { updateReadingTime } from '../../hooks/updateReadingTime'
+import { advancedSeoFields } from '../../fields/seoFields'
 
 import {
   MetaDescriptionField,
@@ -84,11 +86,6 @@ export const Blogs: CollectionConfig<'blogs'> = {
               label: 'Excerpt',
             },
             {
-              name: 'readTime',
-              type: 'text',
-              label: 'Read Time (e.g. 5 mins read)',
-            },
-            {
               name: 'content',
               type: 'richText',
               editor: lexicalEditor({
@@ -108,36 +105,6 @@ export const Blogs: CollectionConfig<'blogs'> = {
             },
           ],
           label: 'Content',
-        },
-        {
-          fields: [
-            {
-              name: 'relatedBlogs',
-              type: 'relationship',
-              admin: {
-                position: 'sidebar',
-              },
-              filterOptions: ({ id }) => {
-                return {
-                  id: {
-                    not_in: [id],
-                  },
-                }
-              },
-              hasMany: true,
-              relationTo: 'blogs',
-            },
-            {
-              name: 'categories',
-              type: 'relationship',
-              admin: {
-                position: 'sidebar',
-              },
-              hasMany: true,
-              relationTo: 'categories',
-            },
-          ],
-          label: 'Meta',
         },
         {
           name: 'meta',
@@ -164,9 +131,24 @@ export const Blogs: CollectionConfig<'blogs'> = {
               titlePath: 'meta.title',
               descriptionPath: 'meta.description',
             }),
+            ...advancedSeoFields,
           ],
         },
       ],
+    },
+    {
+      name: 'readingTime',
+      type: 'number',
+      defaultValue: 0,
+      label: 'Reading Time',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Automatically calculated from blog content on save (200 WPM).',
+        components: {
+          Field: '@/components/ReadingTimeField#ReadingTimeField',
+        },
+      },
     },
     {
       name: 'publishedAt',
@@ -196,6 +178,31 @@ export const Blogs: CollectionConfig<'blogs'> = {
       },
       hasMany: true,
       relationTo: 'users',
+    },
+    {
+      name: 'categories',
+      type: 'relationship',
+      admin: {
+        position: 'sidebar',
+      },
+      hasMany: true,
+      relationTo: 'categories',
+    },
+    {
+      name: 'relatedBlogs',
+      type: 'relationship',
+      admin: {
+        position: 'sidebar',
+      },
+      filterOptions: ({ id }) => {
+        return {
+          id: {
+            not_in: [id],
+          },
+        }
+      },
+      hasMany: true,
+      relationTo: 'blogs',
     },
     {
       name: 'populatedAuthors',
@@ -231,6 +238,7 @@ export const Blogs: CollectionConfig<'blogs'> = {
     },
   ],
   hooks: {
+    beforeChange: [updateReadingTime],
     afterChange: [revalidateBlog],
     afterRead: [populateAuthors],
     afterDelete: [revalidateDelete],

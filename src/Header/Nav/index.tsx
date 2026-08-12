@@ -191,12 +191,7 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
             key={i}
             {...link}
             appearance="link"
-            style={{
-              color: '#ffffff',
-              textDecoration: 'none',
-              transition: 'color 0.2s',
-              fontWeight: '500',
-            }}
+            className="nsh-header-nav-link"
           />
         ))}
 
@@ -248,12 +243,13 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
               position: 'absolute',
               top: '100%',
               right: 0,
-              backgroundColor: '#313131',
+              backgroundColor: '#1f1f1f',
               minWidth: '270px',
-              padding: '6px 0',
-              borderRadius: '2px',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
-              zIndex: 200,
+              padding: '8px 0',
+              borderRadius: '4px',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
+              zIndex: 99999,
               opacity: dropdownOpen ? 1 : 0,
               pointerEvents: dropdownOpen ? 'all' : 'none',
               transform: dropdownOpen ? 'translateY(0)' : 'translateY(-6px)',
@@ -322,10 +318,37 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
       {mobileMenuDrawer}
 
       <style>{`
+        .nsh-desktop-nav a,
+        .nsh-desktop-nav button,
+        .nsh-header-nav-link {
+          font-family: 'Montserrat', sans-serif !important;
+          font-size: 14px !important;
+          font-weight: 400 !important;
+          letter-spacing: 0.5px !important;
+          color: #ffffff !important;
+          text-decoration: none !important;
+          transition: color 0.2s ease !important;
+          background: transparent !important;
+          padding: 0 !important;
+          height: auto !important;
+          box-shadow: none !important;
+          border: none !important;
+        }
+        .nsh-desktop-nav a:hover,
+        .nsh-desktop-nav button:hover,
+        .nsh-header-nav-link:hover {
+          color: #dfcbb5 !important;
+          text-decoration: none !important;
+          background: transparent !important;
+        }
         .nsh-contact-wrap:hover .nsh-dropdown {
           opacity: 1 !important;
           pointer-events: all !important;
           transform: translateY(0) !important;
+        }
+        .nsh-dropdown-item {
+          font-size: 14px !important;
+          letter-spacing: 0.2px !important;
         }
         .nsh-dropdown-item:hover {
           background-color: #1f1f1f !important;

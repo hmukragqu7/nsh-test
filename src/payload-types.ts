@@ -490,6 +490,29 @@ export interface Page {
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
     image?: (number | null) | Media;
+    /**
+     * The primary keyword this page targets. Used to evaluate SEO quality.
+     */
+    focusKeyword?: string | null;
+    /**
+     * Override the canonical URL if this page has a preferred URL (leave blank to use the page URL).
+     */
+    canonicalUrl?: string | null;
+    /**
+     * Control how search engines index and follow this page.
+     */
+    metaRobots?: {
+      indexing?: ('index' | 'noindex') | null;
+      following?: ('follow' | 'nofollow') | null;
+      /**
+       * Prevent search engines from showing a cached version.
+       */
+      noarchive?: boolean | null;
+      /**
+       * Prevent search engines from showing a text snippet in results.
+       */
+      nosnippet?: boolean | null;
+    };
   };
   publishedAt?: string | null;
   /**
@@ -533,6 +556,29 @@ export interface Post {
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
     image?: (number | null) | Media;
+    /**
+     * The primary keyword this page targets. Used to evaluate SEO quality.
+     */
+    focusKeyword?: string | null;
+    /**
+     * Override the canonical URL if this page has a preferred URL (leave blank to use the page URL).
+     */
+    canonicalUrl?: string | null;
+    /**
+     * Control how search engines index and follow this page.
+     */
+    metaRobots?: {
+      indexing?: ('index' | 'noindex') | null;
+      following?: ('follow' | 'nofollow') | null;
+      /**
+       * Prevent search engines from showing a cached version.
+       */
+      noarchive?: boolean | null;
+      /**
+       * Prevent search engines from showing a text snippet in results.
+       */
+      nosnippet?: boolean | null;
+    };
   };
   publishedAt?: string | null;
   authors?: (number | User)[] | null;
@@ -1117,11 +1163,16 @@ export interface Property {
   featured?: boolean | null;
   isGroupParent?: boolean | null;
   parentProperty?: (number | null) | Property;
+  publishedAt?: string | null;
   bannerImages?: (number | Media)[] | null;
   name: string;
   address?: string | null;
   price?: string | null;
   description?: string | null;
+  /**
+   * Select the contact form to display in Section 6.
+   */
+  contactForm?: (number | null) | Form;
   propertySummary?: {
     numberOfBeds?: string | null;
     numberOfBaths?: string | null;
@@ -1180,6 +1231,66 @@ export interface Property {
     youtubeUrl?: string | null;
     videoFile?: (number | null) | Media;
   };
+  projectTeam?: {
+    brokerName?: string | null;
+    builderName?: string | null;
+    architectName?: string | null;
+    interiorDesignerName?: string | null;
+  };
+  aboutSection?: {
+    aboutTitle?: string | null;
+    aboutIntro?: string | null;
+    aboutBackgroundImage?: (number | null) | Media;
+    historyText?: string | null;
+    lifestyleText?: string | null;
+    neighborhoodText?: string | null;
+  };
+  neighborhoodAccordion?:
+    | {
+        title: string;
+        distance?: string | null;
+        image?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  eleganceBanner?: {
+    title?: string | null;
+    description?: string | null;
+  };
+  meta?: {
+    /**
+     * Recommended: 50–60 characters.
+     */
+    title?: string | null;
+    /**
+     * Recommended: 150–160 characters.
+     */
+    description?: string | null;
+    image?: (number | null) | Media;
+    /**
+     * The primary keyword this page targets. Used to evaluate SEO quality.
+     */
+    focusKeyword?: string | null;
+    /**
+     * Override the canonical URL if this page has a preferred URL (leave blank to use the page URL).
+     */
+    canonicalUrl?: string | null;
+    /**
+     * Control how search engines index and follow this page.
+     */
+    metaRobots?: {
+      indexing?: ('index' | 'noindex') | null;
+      following?: ('follow' | 'nofollow') | null;
+      /**
+       * Prevent search engines from showing a cached version.
+       */
+      noarchive?: boolean | null;
+      /**
+       * Prevent search engines from showing a text snippet in results.
+       */
+      nosnippet?: boolean | null;
+    };
+  };
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -1197,7 +1308,6 @@ export interface Blog {
   title: string;
   heroImage?: (number | null) | Media;
   excerpt?: string | null;
-  readTime?: string | null;
   content: {
     root: {
       type: string;
@@ -1213,8 +1323,6 @@ export interface Blog {
     };
     [k: string]: unknown;
   };
-  relatedBlogs?: (number | Blog)[] | null;
-  categories?: (number | Category)[] | null;
   meta?: {
     title?: string | null;
     /**
@@ -1222,9 +1330,38 @@ export interface Blog {
      */
     image?: (number | null) | Media;
     description?: string | null;
+    /**
+     * The primary keyword this page targets. Used to evaluate SEO quality.
+     */
+    focusKeyword?: string | null;
+    /**
+     * Override the canonical URL if this page has a preferred URL (leave blank to use the page URL).
+     */
+    canonicalUrl?: string | null;
+    /**
+     * Control how search engines index and follow this page.
+     */
+    metaRobots?: {
+      indexing?: ('index' | 'noindex') | null;
+      following?: ('follow' | 'nofollow') | null;
+      /**
+       * Prevent search engines from showing a cached version.
+       */
+      noarchive?: boolean | null;
+      /**
+       * Prevent search engines from showing a text snippet in results.
+       */
+      nosnippet?: boolean | null;
+    };
   };
+  /**
+   * Automatically calculated from blog content on save (200 WPM).
+   */
+  readingTime?: number | null;
   publishedAt?: string | null;
   authors?: (number | User)[] | null;
+  categories?: (number | Category)[] | null;
+  relatedBlogs?: (number | Blog)[] | null;
   populatedAuthors?:
     | {
         id?: string | null;
@@ -1829,6 +1966,16 @@ export interface PagesSelect<T extends boolean = true> {
         title?: T;
         description?: T;
         image?: T;
+        focusKeyword?: T;
+        canonicalUrl?: T;
+        metaRobots?:
+          | T
+          | {
+              indexing?: T;
+              following?: T;
+              noarchive?: T;
+              nosnippet?: T;
+            };
       };
   publishedAt?: T;
   generateSlug?: T;
@@ -1963,11 +2110,13 @@ export interface PropertiesSelect<T extends boolean = true> {
   featured?: T;
   isGroupParent?: T;
   parentProperty?: T;
+  publishedAt?: T;
   bannerImages?: T;
   name?: T;
   address?: T;
   price?: T;
   description?: T;
+  contactForm?: T;
   propertySummary?:
     | T
     | {
@@ -2042,6 +2191,55 @@ export interface PropertiesSelect<T extends boolean = true> {
         youtubeUrl?: T;
         videoFile?: T;
       };
+  projectTeam?:
+    | T
+    | {
+        brokerName?: T;
+        builderName?: T;
+        architectName?: T;
+        interiorDesignerName?: T;
+      };
+  aboutSection?:
+    | T
+    | {
+        aboutTitle?: T;
+        aboutIntro?: T;
+        aboutBackgroundImage?: T;
+        historyText?: T;
+        lifestyleText?: T;
+        neighborhoodText?: T;
+      };
+  neighborhoodAccordion?:
+    | T
+    | {
+        title?: T;
+        distance?: T;
+        image?: T;
+        id?: T;
+      };
+  eleganceBanner?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        focusKeyword?: T;
+        canonicalUrl?: T;
+        metaRobots?:
+          | T
+          | {
+              indexing?: T;
+              following?: T;
+              noarchive?: T;
+              nosnippet?: T;
+            };
+      };
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -2055,19 +2253,29 @@ export interface BlogsSelect<T extends boolean = true> {
   title?: T;
   heroImage?: T;
   excerpt?: T;
-  readTime?: T;
   content?: T;
-  relatedBlogs?: T;
-  categories?: T;
   meta?:
     | T
     | {
         title?: T;
         image?: T;
         description?: T;
+        focusKeyword?: T;
+        canonicalUrl?: T;
+        metaRobots?:
+          | T
+          | {
+              indexing?: T;
+              following?: T;
+              noarchive?: T;
+              nosnippet?: T;
+            };
       };
+  readingTime?: T;
   publishedAt?: T;
   authors?: T;
+  categories?: T;
+  relatedBlogs?: T;
   populatedAuthors?:
     | T
     | {
@@ -2096,6 +2304,16 @@ export interface PostsSelect<T extends boolean = true> {
         title?: T;
         description?: T;
         image?: T;
+        focusKeyword?: T;
+        canonicalUrl?: T;
+        metaRobots?:
+          | T
+          | {
+              indexing?: T;
+              following?: T;
+              noarchive?: T;
+              nosnippet?: T;
+            };
       };
   publishedAt?: T;
   authors?: T;
