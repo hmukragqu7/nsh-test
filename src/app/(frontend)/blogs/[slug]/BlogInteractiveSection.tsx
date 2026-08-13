@@ -83,13 +83,6 @@ export default function BlogInteractiveSection({
 
   return (
     <div className="my-14">
-      {/* Top CTA Bar */}
-      <div className="nsh-cta-bar">
-        {ctaLabel}{' '}
-        <a href={ctaUrl} className="nsh-cta-link">
-          {ctaBtnLabel}
-        </a>
-      </div>
 
       {/* Share Section */}
       <div className="mb-14">

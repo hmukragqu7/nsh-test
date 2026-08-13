@@ -286,7 +286,7 @@ html[data-theme='light'] {
   }
 
   .nsh-container-narrow {
-    max-width: 1440px;
+    max-width: 920px;
     margin-inline: auto;
     padding-inline: 1.5rem;
     padding-top: clamp(6.5rem, 10vh, 8.5rem);
@@ -454,7 +454,7 @@ html[data-theme='light'] {
 
   /* Article & Form Component Shared Classes */
   .nsh-container-narrow {
-    max-width: 1440px;
+    max-width: 920px;
     margin-inline: auto;
     width: 100%;
     padding-top: clamp(6.5rem, 10vh, 8.5rem);
@@ -462,7 +462,109 @@ html[data-theme='light'] {
     padding-bottom: 6rem;
   }
 
+  /* Blog article image centering */
+  .nsh-container-narrow article img,
+  .nsh-container-narrow article figure,
+  .nsh-container-narrow article .payload-upload-node {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+  .nsh-container-narrow article figure {
+    text-align: center;
+  }
+  .nsh-container-narrow article figure img {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }
+  .nsh-container-narrow article figure figcaption {
+    font-size: 0.82rem;
+    color: #64748b;
+    font-style: italic;
+  }
+
+  /* Blog Article Typography */
+  .nsh-blog-article {
+    font-family: var(--font-sans);
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #334155;
+    max-width: 100%;
+  }
+  .nsh-blog-article p {
+    margin-bottom: 1.4rem;
+  }
+  .nsh-blog-article h2 {
+    font-family: var(--font-serif, 'Cormorant Garamond', serif);
+    font-size: 1.65rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+  .nsh-blog-article h3 {
+    font-family: var(--font-serif, 'Cormorant Garamond', serif);
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .nsh-blog-article strong, .nsh-blog-article b {
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+  .nsh-blog-article em, .nsh-blog-article i {
+    font-style: italic;
+  }
+  .nsh-blog-article a {
+    color: #8a561f;
+    text-decoration: underline;
+    text-decoration-color: rgba(138,86,31,0.35);
+    text-underline-offset: 3px;
+    transition: color 0.2s, text-decoration-color 0.2s;
+  }
+  .nsh-blog-article a:hover {
+    color: #5c3710;
+    text-decoration-color: rgba(92,55,16,0.6);
+  }
+  .nsh-blog-article figure {
+    display: block;
+    text-align: center;
+    margin: 2.5rem auto;
+    max-width: 100%;
+  }
+  .nsh-blog-article figure img {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+  }
+  .nsh-blog-article figure figcaption {
+    font-size: 0.82rem;
+    color: #64748b;
+    font-style: italic;
+    margin-top: 0.6rem;
+    text-align: center;
+  }
+  .nsh-blog-article img {
+    display: block;
+    margin: 2rem auto;
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+  }
+
   .nsh-cta-bar {
+
     text-align: center;
     margin-bottom: 3rem;
     font-size: 0.95rem;

@@ -211,13 +211,25 @@ export const Pages: CollectionConfig<'pages'> = {
             },
             {
               name: 'homeContact',
-              label: 'Contact Section',
+              label: 'Contact Form Section',
               type: 'group',
               admin: {
-                condition: (data) => data?.slug === 'home',
+                condition: (data) =>
+                  data?.slug === 'home' ||
+                  data?.slug === 'contact' ||
+                  data?.slug === 'index' ||
+                  data?.id === 1 ||
+                  data?.id === 2 ||
+                  !data?.slug,
               },
               fields: [
                 { name: 'heading', type: 'text', defaultValue: "LET'S FIND YOUR DREAM HOME TOGETHER" },
+                {
+                  name: 'selectedForm',
+                  type: 'relationship',
+                  relationTo: 'forms',
+                  label: 'Select CMS Form to Display',
+                },
               ],
             },
             {
@@ -325,6 +337,12 @@ export const Pages: CollectionConfig<'pages'> = {
                       type: 'textarea',
                       defaultValue:
                         'Move into your dream home without the stress of endless decisions or countless hours searching for the right services.',
+                    },
+                    {
+                      name: 'selectedForm',
+                      type: 'relationship',
+                      relationTo: 'forms',
+                      label: 'Select CMS Form to Display',
                     },
                   ],
                 },
@@ -608,7 +626,7 @@ export const Pages: CollectionConfig<'pages'> = {
               label: 'Buy A Home Page Settings',
               type: 'group',
               admin: {
-                condition: () => false,
+                condition: (data) => data?.slug === 'buy-a-home' || data?.id === 10,
               },
               fields: [
                 {
@@ -678,7 +696,7 @@ export const Pages: CollectionConfig<'pages'> = {
               label: 'Other Inquiries Page Settings',
               type: 'group',
               admin: {
-                condition: () => false,
+                condition: (data) => data?.slug === 'other-inquiries' || data?.id === 9,
               },
               fields: [
                 {
@@ -748,7 +766,7 @@ export const Pages: CollectionConfig<'pages'> = {
               label: 'Trade Inquiry Page Settings',
               type: 'group',
               admin: {
-                condition: () => false,
+                condition: (data) => data?.slug === 'trade-inquiry' || data?.id === 8,
               },
               fields: [
                 {

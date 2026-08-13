@@ -12,6 +12,7 @@ import { advancedSeoFields } from '@/fields/seoFields'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { pushToFrappeERPHook } from '@/hooks/pushToFrappeERP'
 import { syncToCF7TrackerHook } from '@/hooks/syncToCF7Tracker'
+import { sendFormEmailsHook } from '@/hooks/sendFormEmails'
 
 import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
@@ -62,6 +63,7 @@ export const plugins: Plugin[] = [
     fields: ({ defaultFields }) => [...defaultFields, ...advancedSeoFields],
   }),
   formBuilderPlugin({
+    beforeEmail: () => [],
     fields: {
       payment: false,
     },
@@ -203,7 +205,7 @@ export const plugins: Plugin[] = [
       ],
       hooks: {
         beforeChange: [pushToFrappeERPHook],
-        afterChange: [syncToCF7TrackerHook],
+        afterChange: [syncToCF7TrackerHook, sendFormEmailsHook],
       },
     },
   }),

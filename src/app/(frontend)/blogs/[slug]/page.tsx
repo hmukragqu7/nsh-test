@@ -126,8 +126,12 @@ export default async function BlogDetailPage({ params }: BlogPageProps) {
         )}
 
         {/* RichText Content Editor Body */}
-        <article className="prose prose-lg max-w-none text-[#334155] leading-relaxed">
-          <RichText data={blog.content} enableGutter={false} />
+        <article className="nsh-blog-article">
+          {typeof blog.content === 'object' && (blog.content as any)?.root ? (
+            <RichText data={blog.content} enableGutter={false} enableProse={false} />
+          ) : typeof blog.content === 'string' ? (
+            <div dangerouslySetInnerHTML={{ __html: blog.content }} />
+          ) : null}
         </article>
 
         {/* Social Share & Comments Section */}

@@ -2,6 +2,7 @@ import React from 'react'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import Link from 'next/link'
+import { ConciergeContactForm } from '@/components/ConciergeContactForm'
 
 export const metadata = {
   title: 'Concierge Service | Personalized Luxury Home Support | Novel Signature Homes',
@@ -142,13 +143,7 @@ export default async function ConciergePage() {
         fontFamily: "'Montserrat', sans-serif",
       }}
     >
-      {/* Import Google Fonts */}
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet"
-      />
+
 
       <style
         dangerouslySetInnerHTML={{
@@ -634,90 +629,7 @@ export default async function ConciergePage() {
 
             {/* Right Column: Form */}
             <div className="concierge-contact-right">
-              <form style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: '13px',
-                      color: '#333333',
-                      marginBottom: '6px',
-                      fontWeight: '500',
-                    }}
-                  >
-                    Name *
-                  </label>
-                  <input type="text" required className="concierge-form-input" />
-                </div>
-
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: '13px',
-                      color: '#333333',
-                      marginBottom: '6px',
-                      fontWeight: '500',
-                    }}
-                  >
-                    Phone
-                  </label>
-                  <input type="tel" className="concierge-form-input" />
-                </div>
-
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: '13px',
-                      color: '#333333',
-                      marginBottom: '6px',
-                      fontWeight: '500',
-                    }}
-                  >
-                    Email *
-                  </label>
-                  <input type="email" required className="concierge-form-input" />
-                </div>
-
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: '13px',
-                      color: '#333333',
-                      marginBottom: '6px',
-                      fontWeight: '500',
-                    }}
-                  >
-                    Message
-                  </label>
-                  <textarea
-                    rows={5}
-                    className="concierge-form-input"
-                    style={{ resize: 'vertical' }}
-                  ></textarea>
-                </div>
-
-                <div style={{ marginTop: '0.5rem' }}>
-                  <button
-                    type="submit"
-                    style={{
-                      backgroundColor: '#000000',
-                      color: '#ffffff',
-                      fontFamily: "'Montserrat', sans-serif",
-                      fontSize: '13px',
-                      fontWeight: '600',
-                      padding: '12px 28px',
-                      border: 'none',
-                      cursor: 'pointer',
-                      borderRadius: '1px',
-                    }}
-                  >
-                    Submit
-                  </button>
-                </div>
-              </form>
+              <ConciergeContactForm formId={String(typeof conciergeData.contactForm?.selectedForm === 'object' ? conciergeData.contactForm?.selectedForm?.id : (conciergeData.contactForm?.selectedForm || '5'))} />
             </div>
           </div>
         </div>

@@ -38,6 +38,26 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
 const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
   ...defaultConverters,
   ...LinkJSXConverter({ internalDocToHref }),
+  upload: ({ node }: { node: any }) => {
+    const media = node.value
+    if (!media) return null
+    const url = media.url || (media.filename ? `/api/media/file/${media.filename}` : null)
+    if (!url) return null
+    return (
+      <figure style={{ textAlign: 'center', margin: '2.5rem auto', maxWidth: '100%' }}>
+        <img
+          src={url}
+          alt={media.alt || media.filename || ''}
+          style={{ display: 'block', margin: '0 auto', maxWidth: '100%', height: 'auto', borderRadius: '6px' }}
+        />
+        {media.caption && (
+          <figcaption style={{ fontSize: '0.82rem', color: '#64748b', fontStyle: 'italic', marginTop: '0.5rem' }}>
+            {media.caption}
+          </figcaption>
+        )}
+      </figure>
+    )
+  },
   blocks: {
     banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
     mediaBlock: ({ node }) => (

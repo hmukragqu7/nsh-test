@@ -14,10 +14,16 @@ export const pushToFrappeERPHook: CollectionBeforeChangeHook = async ({ data, re
       return data
     }
 
-    const form = typeof data.form === 'object' && data.form !== null ? data.form : await req.payload.findByID({
-      collection: 'forms',
-      id: String(formId),
-    })
+    let form: any = null
+    try {
+      form = typeof data.form === 'object' && data.form !== null ? data.form : await req.payload.findByID({
+        collection: 'forms',
+        id: String(formId),
+        depth: 0,
+      })
+    } catch (err: any) {
+      console.warn('[Frappe ERP] Form fetch warning:', err?.message)
+    }
 
     // If form explicitly disables ERP push, mark as not configured and exit
     if (!form?.enableErpPush) {
