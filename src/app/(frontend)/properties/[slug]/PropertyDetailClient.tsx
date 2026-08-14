@@ -30,6 +30,128 @@ export default function PropertyDetailClient({
   const [bannerSlideIndex, setBannerSlideIndex] = useState<number>(0)
   const [activeNeighborhoodCard, setActiveNeighborhoodCard] = useState<number>(2) // Default 3rd card open (0-indexed)
 
+  // Contact Form States (Section 6 & Sidebar)
+  const [sec6State, setSec6State] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    preferredContactMethod: 'Email',
+    interestedIn: 'Purchasing a Property',
+    message: '',
+  })
+  const [sec6Status, setSec6Status] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
+  const [sec6Error, setSec6Error] = useState('')
+
+  const [sidebarState, setSidebarState] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    message: '',
+  })
+  const [sidebarStatus, setSidebarStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
+  const [sidebarError, setSidebarError] = useState('')
+
+  const targetFormId =
+    typeof property?.contactForm === 'object' && property?.contactForm?.id
+      ? String(property.contactForm.id)
+      : typeof property?.contactForm === 'string' || typeof property?.contactForm === 'number'
+      ? String(property.contactForm)
+      : '1'
+
+  const handleSec6Submit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!sec6State.name || !sec6State.email) return
+
+    setSec6Status('submitting')
+    setSec6Error('')
+
+    const submissionData = [
+      { field: 'name', value: sec6State.name },
+      { field: 'phone', value: sec6State.phone },
+      { field: 'email', value: sec6State.email },
+      { field: 'preferredContactMethod', value: sec6State.preferredContactMethod },
+      { field: 'interestedIn', value: sec6State.interestedIn },
+      { field: 'message', value: sec6State.message },
+      { field: 'property', value: property?.name || property?.slug || '' },
+      { field: 'pageUrl', value: typeof window !== 'undefined' ? window.location.href : '' },
+    ]
+
+    try {
+      const res = await fetch('/api/form-submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          form: targetFormId,
+          submissionData,
+        }),
+      })
+
+      if (res.ok) {
+        setSec6Status('success')
+        setSec6State({
+          name: '',
+          phone: '',
+          email: '',
+          preferredContactMethod: 'Email',
+          interestedIn: 'Purchasing a Property',
+          message: '',
+        })
+      } else {
+        const json = await res.json()
+        setSec6Status('error')
+        setSec6Error(json?.errors?.[0]?.message || 'Failed to submit form. Please try again.')
+      }
+    } catch (err: any) {
+      setSec6Status('error')
+      setSec6Error(err?.message || 'Network error. Please try again.')
+    }
+  }
+
+  const handleSidebarSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!sidebarState.name || !sidebarState.email) return
+
+    setSidebarStatus('submitting')
+    setSidebarError('')
+
+    const submissionData = [
+      { field: 'name', value: sidebarState.name },
+      { field: 'phone', value: sidebarState.phone },
+      { field: 'email', value: sidebarState.email },
+      { field: 'message', value: sidebarState.message },
+      { field: 'property', value: property?.name || property?.slug || '' },
+      { field: 'pageUrl', value: typeof window !== 'undefined' ? window.location.href : '' },
+    ]
+
+    try {
+      const res = await fetch('/api/form-submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          form: targetFormId,
+          submissionData,
+        }),
+      })
+
+      if (res.ok) {
+        setSidebarStatus('success')
+        setSidebarState({
+          name: '',
+          phone: '',
+          email: '',
+          message: '',
+        })
+      } else {
+        const json = await res.json()
+        setSidebarStatus('error')
+        setSidebarError(json?.errors?.[0]?.message || 'Failed to submit inquiry. Please try again.')
+      }
+    } catch (err: any) {
+      setSidebarStatus('error')
+      setSidebarError(err?.message || 'Network error. Please try again.')
+    }
+  }
+
   // Prevent background scrolling when any modal is open
   useEffect(() => {
     if (activeModal) {
@@ -922,137 +1044,159 @@ export default function PropertyDetailClient({
 
                 {/* Right Column: Form Inputs */}
                 <div>
-                  <form
-                    onSubmit={(e) => e.preventDefault()}
-                    style={{ display: 'grid', gap: '1.25rem' }}
-                  >
-                    <div>
-                      <label
-                        style={{
-                          display: 'block',
-                          fontSize: '12px',
-                          fontWeight: '500',
-                          color: '#444444',
-                          marginBottom: '0.35rem',
-                        }}
-                      >
-                        Name *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        style={{
-                          width: '100%',
-                          padding: '14px 18px',
-                          backgroundColor: '#eeeeef',
-                          border: 'none',
-                          borderRadius: '2px',
-                          fontSize: '14px',
-                          color: '#1a1a1a',
-                          outline: 'none',
-                        }}
-                      />
+                  {sec6Status === 'success' ? (
+                    <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', padding: '2rem', borderRadius: '4px', textAlign: 'center' }}>
+                      <h3 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: 600 }}>Thank You!</h3>
+                      <p style={{ margin: 0, fontSize: '14px' }}>Your inquiry has been submitted successfully. Our team will contact you shortly.</p>
                     </div>
-                    <div>
-                      <label
-                        style={{
-                          display: 'block',
-                          fontSize: '12px',
-                          fontWeight: '500',
-                          color: '#444444',
-                          marginBottom: '0.35rem',
-                        }}
-                      >
-                        Phone
-                      </label>
-                      <input
-                        type="tel"
-                        style={{
-                          width: '100%',
-                          padding: '14px 18px',
-                          backgroundColor: '#eeeeef',
-                          border: 'none',
-                          borderRadius: '2px',
-                          fontSize: '14px',
-                          color: '#1a1a1a',
-                          outline: 'none',
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label
-                        style={{
-                          display: 'block',
-                          fontSize: '12px',
-                          fontWeight: '500',
-                          color: '#444444',
-                          marginBottom: '0.35rem',
-                        }}
-                      >
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        style={{
-                          width: '100%',
-                          padding: '14px 18px',
-                          backgroundColor: '#eeeeef',
-                          border: 'none',
-                          borderRadius: '2px',
-                          fontSize: '14px',
-                          color: '#1a1a1a',
-                          outline: 'none',
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label
-                        style={{
-                          display: 'block',
-                          fontSize: '12px',
-                          fontWeight: '500',
-                          color: '#444444',
-                          marginBottom: '0.35rem',
-                        }}
-                      >
-                        Message
-                      </label>
-                      <textarea
-                        rows={4}
-                        style={{
-                          width: '100%',
-                          padding: '14px 18px',
-                          backgroundColor: '#eeeeef',
-                          border: 'none',
-                          borderRadius: '2px',
-                          fontSize: '14px',
-                          color: '#1a1a1a',
-                          outline: 'none',
-                          resize: 'vertical',
-                        }}
-                      />
-                    </div>
-                    <div style={{ textAlign: 'left', marginTop: '0.5rem' }}>
-                      <button
-                        type="submit"
-                        style={{
-                          padding: '14px 42px',
-                          backgroundColor: '#000000',
-                          color: '#ffffff',
-                          border: 'none',
-                          borderRadius: '2px',
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          letterSpacing: '1px',
-                          cursor: 'pointer',
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        Submit
-                      </button>
-                    </div>
-                  </form>
+                  ) : (
+                    <form
+                      onSubmit={handleSec6Submit}
+                      style={{ display: 'grid', gap: '1.25rem' }}
+                    >
+                      {sec6Status === 'error' && (
+                        <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '12px 16px', borderRadius: '2px', fontSize: '13px' }}>
+                          {sec6Error}
+                        </div>
+                      )}
+                      <div>
+                        <label
+                          style={{
+                            display: 'block',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            color: '#444444',
+                            marginBottom: '0.35rem',
+                          }}
+                        >
+                          Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={sec6State.name}
+                          onChange={(e) => setSec6State({ ...sec6State, name: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '14px 18px',
+                            backgroundColor: '#eeeeef',
+                            border: 'none',
+                            borderRadius: '2px',
+                            fontSize: '14px',
+                            color: '#1a1a1a',
+                            outline: 'none',
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <label
+                          style={{
+                            display: 'block',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            color: '#444444',
+                            marginBottom: '0.35rem',
+                          }}
+                        >
+                          Phone
+                        </label>
+                        <input
+                          type="tel"
+                          value={sec6State.phone}
+                          onChange={(e) => setSec6State({ ...sec6State, phone: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '14px 18px',
+                            backgroundColor: '#eeeeef',
+                            border: 'none',
+                            borderRadius: '2px',
+                            fontSize: '14px',
+                            color: '#1a1a1a',
+                            outline: 'none',
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <label
+                          style={{
+                            display: 'block',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            color: '#444444',
+                            marginBottom: '0.35rem',
+                          }}
+                        >
+                          Email *
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={sec6State.email}
+                          onChange={(e) => setSec6State({ ...sec6State, email: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '14px 18px',
+                            backgroundColor: '#eeeeef',
+                            border: 'none',
+                            borderRadius: '2px',
+                            fontSize: '14px',
+                            color: '#1a1a1a',
+                            outline: 'none',
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <label
+                          style={{
+                            display: 'block',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            color: '#444444',
+                            marginBottom: '0.35rem',
+                          }}
+                        >
+                          Message
+                        </label>
+                        <textarea
+                          rows={4}
+                          value={sec6State.message}
+                          onChange={(e) => setSec6State({ ...sec6State, message: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '14px 18px',
+                            backgroundColor: '#eeeeef',
+                            border: 'none',
+                            borderRadius: '2px',
+                            fontSize: '14px',
+                            color: '#1a1a1a',
+                            outline: 'none',
+                            resize: 'vertical',
+                          }}
+                        />
+                      </div>
+                      <div style={{ textAlign: 'left', marginTop: '0.5rem' }}>
+                        <button
+                          type="submit"
+                          disabled={sec6Status === 'submitting'}
+                          style={{
+                            padding: '14px 42px',
+                            backgroundColor: '#000000',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '2px',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            letterSpacing: '1px',
+                            cursor: sec6Status === 'submitting' ? 'not-allowed' : 'pointer',
+                            opacity: sec6Status === 'submitting' ? 0.7 : 1,
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          {sec6Status === 'submitting' ? 'Submitting...' : 'Submit'}
+                        </button>
+                      </div>
+                    </form>
+                  )}
                 </div>
               </div>
             </section>
@@ -2597,129 +2741,151 @@ export default function PropertyDetailClient({
                   </div>
 
                   {/* Contact Form */}
-                  <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div>
-                      <label
-                        style={{
-                          display: 'block',
-                          fontSize: '12px',
-                          color: '#cccccc',
-                          marginBottom: '0.35rem',
-                        }}
-                      >
-                        Name<span style={{ color: '#ef4444' }}>*</span>
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        style={{
-                          width: '100%',
-                          padding: '0.65rem 0.85rem',
-                          backgroundColor: '#262626',
-                          border: '1px solid #333333',
-                          color: '#ffffff',
-                          fontSize: '14px',
-                          outline: 'none',
-                        }}
-                      />
+                  {sidebarStatus === 'success' ? (
+                    <div style={{ backgroundColor: '#22543d', border: '1px solid #2f855a', color: '#c6f6d5', padding: '1.5rem', borderRadius: '4px', textAlign: 'center', margin: '1rem 0' }}>
+                      <h3 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: 600 }}>Thank You!</h3>
+                      <p style={{ margin: 0, fontSize: '13px' }}>Your inquiry has been received. Our agent will reach out shortly.</p>
                     </div>
+                  ) : (
+                    <form onSubmit={handleSidebarSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {sidebarStatus === 'error' && (
+                        <div style={{ backgroundColor: '#742a2a', border: '1px solid #9b2c2c', color: '#fed7d7', padding: '10px 14px', borderRadius: '2px', fontSize: '12px' }}>
+                          {sidebarError}
+                        </div>
+                      )}
+                      <div>
+                        <label
+                          style={{
+                            display: 'block',
+                            fontSize: '12px',
+                            color: '#cccccc',
+                            marginBottom: '0.35rem',
+                          }}
+                        >
+                          Name<span style={{ color: '#ef4444' }}>*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={sidebarState.name}
+                          onChange={(e) => setSidebarState({ ...sidebarState, name: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '0.65rem 0.85rem',
+                            backgroundColor: '#262626',
+                            border: '1px solid #333333',
+                            color: '#ffffff',
+                            fontSize: '14px',
+                            outline: 'none',
+                          }}
+                        />
+                      </div>
 
-                    <div>
-                      <label
-                        style={{
-                          display: 'block',
-                          fontSize: '12px',
-                          color: '#cccccc',
-                          marginBottom: '0.35rem',
-                        }}
-                      >
-                        Phone
-                      </label>
-                      <input
-                        type="tel"
-                        style={{
-                          width: '100%',
-                          padding: '0.65rem 0.85rem',
-                          backgroundColor: '#262626',
-                          border: '1px solid #333333',
-                          color: '#ffffff',
-                          fontSize: '14px',
-                          outline: 'none',
-                        }}
-                      />
-                    </div>
+                      <div>
+                        <label
+                          style={{
+                            display: 'block',
+                            fontSize: '12px',
+                            color: '#cccccc',
+                            marginBottom: '0.35rem',
+                          }}
+                        >
+                          Phone
+                        </label>
+                        <input
+                          type="tel"
+                          value={sidebarState.phone}
+                          onChange={(e) => setSidebarState({ ...sidebarState, phone: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '0.65rem 0.85rem',
+                            backgroundColor: '#262626',
+                            border: '1px solid #333333',
+                            color: '#ffffff',
+                            fontSize: '14px',
+                            outline: 'none',
+                          }}
+                        />
+                      </div>
 
-                    <div>
-                      <label
-                        style={{
-                          display: 'block',
-                          fontSize: '12px',
-                          color: '#cccccc',
-                          marginBottom: '0.35rem',
-                        }}
-                      >
-                        Email<span style={{ color: '#ef4444' }}>*</span>
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        style={{
-                          width: '100%',
-                          padding: '0.65rem 0.85rem',
-                          backgroundColor: '#262626',
-                          border: '1px solid #333333',
-                          color: '#ffffff',
-                          fontSize: '14px',
-                          outline: 'none',
-                        }}
-                      />
-                    </div>
+                      <div>
+                        <label
+                          style={{
+                            display: 'block',
+                            fontSize: '12px',
+                            color: '#cccccc',
+                            marginBottom: '0.35rem',
+                          }}
+                        >
+                          Email<span style={{ color: '#ef4444' }}>*</span>
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={sidebarState.email}
+                          onChange={(e) => setSidebarState({ ...sidebarState, email: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '0.65rem 0.85rem',
+                            backgroundColor: '#262626',
+                            border: '1px solid #333333',
+                            color: '#ffffff',
+                            fontSize: '14px',
+                            outline: 'none',
+                          }}
+                        />
+                      </div>
 
-                    <div>
-                      <label
-                        style={{
-                          display: 'block',
-                          fontSize: '12px',
-                          color: '#cccccc',
-                          marginBottom: '0.35rem',
-                        }}
-                      >
-                        Message
-                      </label>
-                      <textarea
-                        rows={3}
-                        style={{
-                          width: '100%',
-                          padding: '0.65rem 0.85rem',
-                          backgroundColor: '#262626',
-                          border: '1px solid #333333',
-                          color: '#ffffff',
-                          fontSize: '14px',
-                          outline: 'none',
-                          resize: 'vertical',
-                        }}
-                      />
-                    </div>
+                      <div>
+                        <label
+                          style={{
+                            display: 'block',
+                            fontSize: '12px',
+                            color: '#cccccc',
+                            marginBottom: '0.35rem',
+                          }}
+                        >
+                          Message
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={sidebarState.message}
+                          onChange={(e) => setSidebarState({ ...sidebarState, message: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '0.65rem 0.85rem',
+                            backgroundColor: '#262626',
+                            border: '1px solid #333333',
+                            color: '#ffffff',
+                            fontSize: '14px',
+                            outline: 'none',
+                            resize: 'vertical',
+                          }}
+                        />
+                      </div>
 
-                    <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
-                      <button
-                        type="button"
-                        style={{
-                          backgroundColor: '#000000',
-                          color: '#ffffff',
-                          border: '1px solid #333333',
-                          padding: '0.75rem 2.5rem',
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          textTransform: 'uppercase',
-                          letterSpacing: '1px',
-                        }}
-                      >
-                        Submit
-                      </button>
-                    </div>
-                  </form>
+                      <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+                        <button
+                          type="submit"
+                          disabled={sidebarStatus === 'submitting'}
+                          style={{
+                            backgroundColor: '#000000',
+                            color: '#ffffff',
+                            border: '1px solid #333333',
+                            padding: '0.75rem 2.5rem',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            cursor: sidebarStatus === 'submitting' ? 'not-allowed' : 'pointer',
+                            opacity: sidebarStatus === 'submitting' ? 0.7 : 1,
+                            textTransform: 'uppercase',
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          {sidebarStatus === 'submitting' ? 'Submitting...' : 'Submit'}
+                        </button>
+                      </div>
+                    </form>
+                  )}
                 </div>
               ) : status === 'sold' ? (
                 /* 2. SOLD OUT Card matching exact screenshot */
