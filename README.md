@@ -1,26 +1,21 @@
 # 📚 Novel Signature Homes - Complete Developer & Beginner's Guide
 
 > **Project:** `my-payload-app` (Novel Signature Homes)  
-> **Tech Stack:** Next.js 16 (App Router) + Payload CMS 3.86 (Embedded) + SQLite (`my-payload-app.db`) + Lexical Rich Text Editor + TailwindCSS + Vitest + Playwright  
+> **Tech Stack:** Next.js 16 (App Router) + Payload CMS 3.86 (Embedded) + PostgreSQL (`@payloadcms/db-postgres`) & SQLite (`my-payload-app.db`) + Lexical Rich Text Editor + TailwindCSS + Vitest + Playwright  
 
 ---
 
 ## 📑 Table of Contents
 1. [Beginner's Overview: Next.js + Payload CMS 3.x](#1-beginners-overview-nextjs--payload-cms-3x)
-2. [Architecture Overview](#2-architecture-overview)
-3. [Complete Directory & File Structure (Folder Uses & Roles)](#3-complete-directory--file-structure)
-4. [Quick Start & Local Setup](#4-quick-start--local-setup)
-5. [Step-by-Step Development Lifecycle](#5-step-by-step-development-lifecycle)
-   - [Step 1: Define Admin Schema (Collections & Blocks)](#step-1-define-admin-schema-collections--blocks)
-   - [Step 2: Generate Types & Import Map](#step-2-generate-types--import-map)
-   - [Step 3: Update Database Schema (SQLite Migrations & Auto-Push)](#step-3-update-database-schema-sqlite-migrations--auto-push)
-   - [Step 4: Fetch & Render Data on Next.js Frontend](#step-4-fetch--render-data-on-nextjs-frontend)
-   - [Step 5: Live Preview & Admin Bar Setup](#step-5-live-preview--admin-bar-setup)
-   - [Step 6: Automated Testing (Vitest & Playwright)](#step-6-automated-testing-vitest--playwright)
-6. [Production Deployment & Containerization (Docker & Render.com)](#6-production-deployment--containerization)
-7. [Database Maintenance & Seeding Utilities Reference](#7-database-maintenance--seeding-utilities-reference)
-8. [Troubleshooting & FAQs](#8-troubleshooting--faqs)
-9. [Optional Note: How Images & Dynamic Pages Load Easily on the Live Website](#9-optional-note-how-images--dynamic-pages-load-easily-on-the-live-website)
+2. [Database Architecture & PostgreSQL Benefits](#2-database-architecture--postgresql-benefits)
+3. [Architecture Overview](#3-architecture-overview)
+4. [Complete Directory & File Structure (Folder Uses & Roles)](#4-complete-directory--file-structure)
+5. [Quick Start & Local Setup](#5-quick-start--local-setup)
+6. [Step-by-Step Development Lifecycle](#6-step-by-step-development-lifecycle)
+7. [Production Deployment & Containerization (Docker & Render.com)](#7-production-deployment--containerization)
+8. [Database Maintenance & Seeding Utilities Reference](#8-database-maintenance--seeding-utilities-reference)
+9. [Troubleshooting & FAQs](#9-troubleshooting--faqs)
+10. [Optional Note: How Images & Dynamic Pages Load Easily on the Live Website](#10-optional-note-how-images--dynamic-pages-load-easily-on-the-live-website)
 
 ---
 
@@ -41,7 +36,30 @@ Payload CMS is a headless Content Management System built with TypeScript and No
 | **Blocks** | Dynamic visual UI components that content editors can insert, reorder, and configure on any page. | `src/blocks/ArchiveBlock`, `src/blocks/CallToAction`, `src/blocks/Carousel` |
 | **Local API (`getPayload`)** | Directly query CMS data inside Next.js Server Components with 0 HTTP latency (bypassing REST/GraphQL). | `const payload = await getPayload({ config }); await payload.find({ collection: 'properties' });` |
 | **Lexical Editor** | The default rich text editor in Payload that outputs clean JSON data instead of raw HTML. | Configured via `@payloadcms/richtext-lexical` in [src/fields/defaultLexical.ts](file:///home/novel/my-payload-app/src/fields/defaultLexical.ts) |
-| **Database Adapter** | The database connector. This project uses SQLite (`@payloadcms/db-sqlite`), stored locally in `my-payload-app.db`. | Configured in [src/payload.config.ts](file:///home/novel/my-payload-app/src/payload.config.ts) |
+| **Dual Database Adapter** | Supports both PostgreSQL (`@payloadcms/db-postgres`) for production and SQLite (`@payloadcms/db-sqlite`) for local dev. | Configured in [src/payload.config.ts](file:///home/novel/my-payload-app/src/payload.config.ts) |
+
+---
+
+## 2. Database Architecture & PostgreSQL Benefits
+
+This project is built with **Smart Dual-Database Support** in [src/payload.config.ts](file:///home/novel/my-payload-app/src/payload.config.ts):
+
+- **Local Development**: Uses `@payloadcms/db-sqlite` with local `my-payload-app.db` file for instant, zero-configuration local dev setup.
+- **Production Deployment**: Supports `@payloadcms/db-postgres` for high-performance cloud databases (Render PostgreSQL, Supabase, Neon, AWS RDS).
+
+### ⚡ Key Benefits of PostgreSQL
+
+1. **Permanent Data Persistence**  
+   In cloud platforms like Render or AWS, application containers restart dynamically. A local database file inside a container is ephemeral. PostgreSQL operates on dedicated, managed database instances — ensuring your listings, media records, and admin data remain permanently safe and persistent across all container deploys.
+
+2. **High Concurrency & Heavy Traffic Handling**  
+   PostgreSQL is designed for production workloads. It efficiently manages concurrent database connections, complex relational joins, full-text searching, and background jobs without locking or bottlenecks.
+
+3. **Automated Cloud Backups & Point-in-Time Recovery**  
+   Using PostgreSQL allows you to take advantage of automated daily database snapshots, read replicas, and point-in-time recovery on cloud providers (Supabase, Neon, Render PostgreSQL).
+
+4. **Smart Automatic Switching in `payload.config.ts`**  
+   When the `DATABASE_URI` environment variable is set (e.g. on Render), Payload CMS automatically boots with `@payloadcms/db-postgres`. If omitted, it falls back to local SQLite smoothly.
 
 ---
 
