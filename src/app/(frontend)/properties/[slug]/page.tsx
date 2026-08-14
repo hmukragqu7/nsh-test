@@ -33,44 +33,71 @@ export async function generateMetadata({ params }: PropertyPageProps) {
 
 export default async function PropertyDetailPage({ params }: PropertyPageProps) {
   const { slug } = await params
-  const payload = await getPayload({ config: configPromise })
   
-  // 1. Fetch main property
-  const result = await payload.find({
-    collection: 'properties',
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
-    depth: 2,
-  })
+  let property: any = null
+  let otherResult: any = { docs: [] }
+  let childProperties: any[] = []
 
-  const property = result.docs[0] as any
+  try {
+    const payload = await getPayload({ config: configPromise })
+    
+    // 1. Fetch main property
+    const result = await payload.find({
+      collection: 'properties',
+      where: {
+        slug: {
+          equals: slug,
+        },
+      },
+      depth: 2,
+    })
+
+    property = result.docs[0] as any
+
+    if (property) {
+      // 2. Fetch other properties for Swiper carousel
+      otherResult = await payload.find({
+        collection: 'properties',
+        where: {
+          and: [
+            {
+              slug: {
+                not_equals: slug,
+              },
+            },
+            {
+              parentProperty: {
+                exists: false,
+              },
+            },
+          ],
+        },
+        limit: 10,
+        depth: 2,
+      })
+
+      // 3. If parent community, fetch all units/child properties
+      if (property.isGroupParent) {
+        const childResult = await payload.find({
+          collection: 'properties',
+          where: {
+            parentProperty: {
+              equals: property.id,
+            },
+          },
+          limit: 100,
+          depth: 2,
+        })
+        childProperties = childResult.docs
+      }
+    }
+  } catch (err) {
+    // Fallback on cold DB build
+  }
+
   if (!property) {
     notFound()
   }
-
-  // 2. Fetch other properties for Swiper carousel (only individual / standalone properties, not under a parent)
-  const otherResult = await payload.find({
-    collection: 'properties',
-    where: {
-      and: [
-        {
-          slug: {
-            not_equals: slug,
-          },
-        },
-        {
-          parentProperty: {
-            exists: false,
-          },
-        },
-      ],
-    },
-    limit: 10,
-    depth: 2,
-  })
 
   // Extract Youtube ID helper
   const getYoutubeEmbedUrl = (url?: string) => {
@@ -83,22 +110,6 @@ export default async function PropertyDetailPage({ params }: PropertyPageProps) 
   }
 
   const youtubeEmbedUrl = getYoutubeEmbedUrl(property.video?.youtubeUrl)
-
-  // 3. If parent community, fetch all units/child properties
-  let childProperties: any[] = []
-  if (property.isGroupParent) {
-    const childResult = await payload.find({
-      collection: 'properties',
-      where: {
-        parentProperty: {
-          equals: property.id,
-        },
-      },
-      limit: 100,
-      depth: 2,
-    })
-    childProperties = childResult.docs
-  }
 
   return (
     <PropertyDetailClient

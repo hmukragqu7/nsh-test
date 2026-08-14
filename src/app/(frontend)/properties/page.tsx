@@ -9,23 +9,30 @@ export const metadata = {
 }
 
 export default async function PropertiesIndexPage() {
-  const payload = await getPayload({ config: configPromise })
-  const result = await payload.find({
-    collection: 'properties',
-    depth: 2,
-    limit: 100,
-  })
+  let result: any = { docs: [] }
+  let pagesResult: any = { docs: [] }
 
-  // Fetch properties page content from Pages collection
-  const pagesResult = await payload.find({
-    collection: 'pages',
-    where: {
-      slug: {
-        equals: 'properties',
+  try {
+    const payload = await getPayload({ config: configPromise })
+    result = await payload.find({
+      collection: 'properties',
+      depth: 2,
+      limit: 100,
+    })
+
+    // Fetch properties page content from Pages collection
+    pagesResult = await payload.find({
+      collection: 'pages',
+      where: {
+        slug: {
+          equals: 'properties',
+        },
       },
-    },
-    limit: 1,
-  })
+      limit: 1,
+    })
+  } catch (err) {
+    // Fallback on cold DB build
+  }
   const pageDoc = pagesResult.docs?.[0] as any
   const headerData = pageDoc?.propertiesPageHeader || {}
   const headerTitle = headerData.title || 'Luxury Homes For Sale In Texas'
