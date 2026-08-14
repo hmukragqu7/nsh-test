@@ -61,7 +61,7 @@ export default buildConfig({
     client: {
       url: process.env.DATABASE_URL || '',
     },
-    push: false,
+    push: true,
   }),
   email: nodemailerAdapter({
     defaultFromAddress: process.env.SMTP_FROM || 'info@novelsignaturehomes.com',
