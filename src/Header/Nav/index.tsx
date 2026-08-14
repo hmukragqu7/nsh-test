@@ -190,7 +190,7 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
           <CMSLink
             key={i}
             {...link}
-            appearance="link"
+            appearance="inline"
             className="nsh-header-nav-link"
           />
         ))}
@@ -209,9 +209,9 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
               border: 'none',
               color: '#ffffff',
               fontFamily: "'Montserrat', sans-serif",
-              fontSize: '13px',
-              letterSpacing: '1.2px',
-              fontWeight: '500',
+              fontSize: '14px',
+              letterSpacing: '0.5px',
+              fontWeight: '400',
               cursor: 'pointer',
               padding: '10px 0',
               display: 'flex',
@@ -243,12 +243,12 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
               position: 'absolute',
               top: '100%',
               right: 0,
-              backgroundColor: '#1f1f1f',
-              minWidth: '270px',
-              padding: '8px 0',
-              borderRadius: '4px',
+              backgroundColor: '#0d0f0e',
+              minWidth: '280px',
+              padding: '10px 0',
+              borderRadius: '0px',
               border: '1px solid rgba(255, 255, 255, 0.12)',
-              boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
+              boxShadow: '0 16px 40px rgba(0,0,0,0.7)',
               zIndex: 99999,
               opacity: dropdownOpen ? 1 : 0,
               pointerEvents: dropdownOpen ? 'all' : 'none',
@@ -263,15 +263,15 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
                 className="nsh-dropdown-item"
                 style={{
                   display: 'block',
-                  padding: '10px 18px',
+                  padding: '10px 20px',
                   color: '#ffffff',
                   fontSize: '14px',
                   textDecoration: 'none',
                   textTransform: 'none',
-                  letterSpacing: '0.2px',
+                  letterSpacing: '0.3px',
                   fontWeight: '400',
                   fontFamily: "'Montserrat', sans-serif",
-                  transition: 'background-color 0.15s ease',
+                  transition: 'background-color 0.15s ease, color 0.15s ease',
                   whiteSpace: 'nowrap',
                 }}
               >
@@ -333,6 +333,8 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
           height: auto !important;
           box-shadow: none !important;
           border: none !important;
+          outline: none !important;
+          border-radius: 0 !important;
         }
         .nsh-desktop-nav a:hover,
         .nsh-desktop-nav button:hover,
@@ -348,10 +350,11 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
         }
         .nsh-dropdown-item {
           font-size: 14px !important;
-          letter-spacing: 0.2px !important;
+          letter-spacing: 0.3px !important;
         }
         .nsh-dropdown-item:hover {
-          background-color: #1f1f1f !important;
+          background-color: rgba(255, 255, 255, 0.08) !important;
+          color: #dfcbb5 !important;
         }
         @media (max-width: 768px) {
           .nsh-desktop-nav { display: none !important; }
