@@ -15,31 +15,27 @@ import { LivePreviewListener } from '@/components/LivePreviewListener'
 import NSHHomePage from '@/components/NSHHomePage'
 
 export async function generateStaticParams() {
-  try {
-    const payload = await getPayload({ config: configPromise })
-    const pages = await payload.find({
-      collection: 'pages',
-      draft: false,
-      limit: 1000,
-      overrideAccess: false,
-      pagination: false,
-      select: {
-        slug: true,
-      },
+  const payload = await getPayload({ config: configPromise })
+  const pages = await payload.find({
+    collection: 'pages',
+    draft: false,
+    limit: 1000,
+    overrideAccess: false,
+    pagination: false,
+    select: {
+      slug: true,
+    },
+  })
+
+  const params = pages.docs
+    ?.filter((doc) => {
+      return doc.slug !== 'home'
+    })
+    .map(({ slug }) => {
+      return { slug }
     })
 
-    const params = pages.docs
-      ?.filter((doc) => {
-        return doc.slug !== 'home'
-      })
-      .map(({ slug }) => {
-        return { slug }
-      })
-
-    return params
-  } catch (err) {
-    return []
-  }
+  return params
 }
 
 type Args = {
@@ -73,42 +69,37 @@ export default async function Page({ params: paramsPromise }: Args) {
   const layout = (page as any)?.layout || []
 
   if (decodedSlug === 'home') {
-    let individualProperties: any[] = []
-    try {
-      const payload = await getPayload({ config: configPromise })
-      const propertiesResult = await payload.find({
-        collection: 'properties',
-        depth: 2,
-        limit: 100,
-        overrideAccess: true,
+    const payload = await getPayload({ config: configPromise })
+    const propertiesResult = await payload.find({
+      collection: 'properties',
+      depth: 2,
+      limit: 100,
+      overrideAccess: true,
+    })
+
+    const individualProperties = propertiesResult.docs
+      .filter((prop: any) => prop.featured && !prop.isGroupParent)
+      .map((prop: any) => {
+        const beds = prop.propertySummary?.numberOfBeds ? `${prop.propertySummary.numberOfBeds} BD` : ''
+        const baths = prop.propertySummary?.numberOfBaths ? `${prop.propertySummary.numberOfBaths} BA` : ''
+        const ac = prop.propertySummary?.acArea ? `AC Area: ${prop.propertySummary.acArea}` : ''
+        const detailsStr = [beds, baths, ac].filter(Boolean).join(' | ')
+
+        const statusLabels: Record<string, string> = {
+          for_sale: 'for sale',
+          sold: 'sold',
+          under_contract: 'under contract',
+        }
+        const mappedStatus = statusLabels[prop.status] || 'for sale'
+
+        return {
+          image: prop.bannerImages?.[0]?.url || '/media/034.webp',
+          status: mappedStatus,
+          title: prop.name,
+          details: detailsStr || 'Contact for details',
+          href: `/properties/${prop.slug}`,
+        }
       })
-
-      individualProperties = propertiesResult.docs
-        .filter((prop: any) => prop.featured && !prop.isGroupParent)
-        .map((prop: any) => {
-          const beds = prop.propertySummary?.numberOfBeds ? `${prop.propertySummary.numberOfBeds} BD` : ''
-          const baths = prop.propertySummary?.numberOfBaths ? `${prop.propertySummary.numberOfBaths} BA` : ''
-          const ac = prop.propertySummary?.acArea ? `AC Area: ${prop.propertySummary.acArea}` : ''
-          const detailsStr = [beds, baths, ac].filter(Boolean).join(' | ')
-
-          const statusLabels: Record<string, string> = {
-            for_sale: 'for sale',
-            sold: 'sold',
-            under_contract: 'under contract',
-          }
-          const mappedStatus = statusLabels[prop.status] || 'for sale'
-
-          return {
-            image: prop.bannerImages?.[0]?.url || '/media/034.webp',
-            status: mappedStatus,
-            title: prop.name,
-            details: detailsStr || 'Contact for details',
-            href: `/properties/${prop.slug}`,
-          }
-        })
-    } catch (err) {
-      // Graceful fallback during static build when DB is empty
-    }
 
     return (
       <article>
@@ -147,24 +138,20 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
 const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
   const { isEnabled: draft } = await draftMode()
 
-  try {
-    const payload = await getPayload({ config: configPromise })
+  const payload = await getPayload({ config: configPromise })
 
-    const result = await payload.find({
-      collection: 'pages',
-      draft,
-      limit: 1,
-      pagination: false,
-      overrideAccess: draft,
-      where: {
-        slug: {
-          equals: slug,
-        },
+  const result = await payload.find({
+    collection: 'pages',
+    draft,
+    limit: 1,
+    pagination: false,
+    overrideAccess: draft,
+    where: {
+      slug: {
+        equals: slug,
       },
-    })
+    },
+  })
 
-    return result.docs?.[0] || null
-  } catch (err) {
-    return null
-  }
+  return result.docs?.[0] || null
 })

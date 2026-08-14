@@ -61,7 +61,7 @@ export default buildConfig({
     client: {
       url: process.env.DATABASE_URL || '',
     },
-    push: true,
+    push: false,
   }),
   email: nodemailerAdapter({
     defaultFromAddress: process.env.SMTP_FROM || 'info@novelsignaturehomes.com',
@@ -79,7 +79,7 @@ export default buildConfig({
   cors: [getServerSideURL(), '*'].filter(Boolean),
   globals: [Header, Footer, Settings],
   plugins,
-  secret: process.env.PAYLOAD_SECRET || 'fallback-payload-secret-key-change-in-env',
+  secret: process.env.PAYLOAD_SECRET,
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

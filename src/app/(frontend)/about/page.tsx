@@ -9,23 +9,18 @@ export const metadata = {
 }
 
 export default async function AboutPage() {
-  let pagesResult: any = { docs: [] }
-  try {
-    const payload = await getPayload({ config: configPromise })
+  const payload = await getPayload({ config: configPromise })
 
-    // Fetch About page document from Pages collection
-    pagesResult = await payload.find({
-      collection: 'pages',
-      where: {
-        slug: {
-          equals: 'about',
-        },
+  // Fetch About page document from Pages collection
+  const pagesResult = await payload.find({
+    collection: 'pages',
+    where: {
+      slug: {
+        equals: 'about',
       },
-      limit: 1,
-    })
-  } catch (err) {
-    // Graceful fallback during cold DB build
-  }
+    },
+    limit: 1,
+  })
 
   const pageDoc = pagesResult.docs?.[0] as any
   const aboutData = pageDoc?.aboutPage || {}

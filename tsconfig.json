@@ -47,8 +47,6 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "src/scripts",
-    "scripts"
+    "node_modules"
   ]
 }

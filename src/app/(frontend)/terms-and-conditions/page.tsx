@@ -12,22 +12,17 @@ export const metadata = {
 }
 
 export default async function TermsAndConditionsPage() {
-  let pagesResult: any = { docs: [] }
-  try {
-    const payload = await getPayload({ config: configPromise })
+  const payload = await getPayload({ config: configPromise })
 
-    pagesResult = await payload.find({
-      collection: 'pages',
-      where: {
-        slug: {
-          equals: 'terms-and-conditions',
-        },
+  const pagesResult = await payload.find({
+    collection: 'pages',
+    where: {
+      slug: {
+        equals: 'terms-and-conditions',
       },
-      limit: 1,
-    })
-  } catch (err) {
-    // Fallback on cold DB build
-  }
+    },
+    limit: 1,
+  })
 
   const pageDoc = pagesResult.docs?.[0] as any
   const cmsData = pageDoc?.termsAndConditionsPage || {}
