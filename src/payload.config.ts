@@ -61,7 +61,7 @@ export default buildConfig({
     client: {
       url: process.env.DATABASE_URL || '',
     },
-    push: false,
+    push: process.env.PAYLOAD_DB_PUSH ? process.env.PAYLOAD_DB_PUSH === 'true' : process.env.NODE_ENV !== 'production',
   }),
   email: nodemailerAdapter({
     defaultFromAddress: process.env.SMTP_FROM || 'info@novelsignaturehomes.com',
