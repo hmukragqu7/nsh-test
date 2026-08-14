@@ -9,6 +9,9 @@ import { PayloadRedirects } from '@/components/PayloadRedirects'
 import { formatAuthors } from '@/utilities/formatAuthors'
 import BlogInteractiveSection from './BlogInteractiveSection'
 
+export const dynamic = 'force-dynamic'
+export const dynamicParams = true
+
 interface BlogPageProps {
   params: Promise<{
     slug: string

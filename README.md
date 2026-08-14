@@ -1,303 +1,543 @@
-# Payload Website Template
+# 📚 Novel Signature Homes - Complete Developer & Beginner's Guide
 
-This is the official [Payload Website Template](https://github.com/payloadcms/payload/blob/3.x/templates/website). Use it to power websites, blogs, or portfolios from small to enterprise. This repo includes a fully-working backend, enterprise-grade admin panel, and a beautifully designed, production-ready website.
+> **Project:** `my-payload-app` (Novel Signature Homes)  
+> **Tech Stack:** Next.js 16 (App Router) + Payload CMS 3.86 (Embedded) + SQLite (`my-payload-app.db`) + Lexical Rich Text Editor + TailwindCSS + Vitest + Playwright  
 
-This template is right for you if you are working on:
+---
 
-- A personal or enterprise-grade website, blog, or portfolio
-- A content publishing platform with a fully featured publication workflow
-- Exploring the capabilities of Payload
+## 📑 Table of Contents
+1. [Beginner's Overview: Next.js + Payload CMS 3.x](#1-beginners-overview-nextjs--payload-cms-3x)
+2. [Architecture Overview](#2-architecture-overview)
+3. [Complete Directory & File Structure (Folder Uses & Roles)](#3-complete-directory--file-structure)
+4. [Quick Start & Local Setup](#4-quick-start--local-setup)
+5. [Step-by-Step Development Lifecycle](#5-step-by-step-development-lifecycle)
+   - [Step 1: Define Admin Schema (Collections & Blocks)](#step-1-define-admin-schema-collections--blocks)
+   - [Step 2: Generate Types & Import Map](#step-2-generate-types--import-map)
+   - [Step 3: Update Database Schema (SQLite Migrations & Auto-Push)](#step-3-update-database-schema-sqlite-migrations--auto-push)
+   - [Step 4: Fetch & Render Data on Next.js Frontend](#step-4-fetch--render-data-on-nextjs-frontend)
+   - [Step 5: Live Preview & Admin Bar Setup](#step-5-live-preview--admin-bar-setup)
+   - [Step 6: Automated Testing (Vitest & Playwright)](#step-6-automated-testing-vitest--playwright)
+6. [Production Deployment & Containerization (Docker & Render.com)](#6-production-deployment--containerization)
+7. [Database Maintenance & Seeding Utilities Reference](#7-database-maintenance--seeding-utilities-reference)
+8. [Troubleshooting & FAQs](#8-troubleshooting--faqs)
 
-Core features:
+---
 
-- [Pre-configured Payload Config](#how-it-works)
-- [Authentication](#users-authentication)
-- [Access Control](#access-control)
-- [Layout Builder](#layout-builder)
-- [Draft Preview](#draft-preview)
-- [Live Preview](#live-preview)
-- [On-demand Revalidation](#on-demand-revalidation)
-- [SEO](#seo)
-- [Search](#search)
-- [Redirects](#redirects)
-- [Jobs and Scheduled Publishing](#jobs-and-scheduled-publish)
-- [Website](#website)
+## 1. Beginner's Overview: Next.js + Payload CMS 3.x
 
-## Quick Start
+If you are new to **Payload CMS** or **Next.js App Router**, this section breaks down the foundational concepts used in this project.
 
-To spin up this example locally, follow these steps:
+### What is Payload CMS 3.x?
+Payload CMS is a headless Content Management System built with TypeScript and Node.js. Unlike traditional CMS platforms (like WordPress or Drupal), Payload 3.x is **embedded directly into Next.js**. It runs natively inside your Next.js application at `src/app/(payload)/` — meaning there is **no separate backend server to deploy**.
 
-### Clone
+### Core Concepts Explained
 
-If you have not done so already, you need to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+| Concept | Explanation | Real Example in Project |
+| :--- | :--- | :--- |
+| **Embedded Architecture** | Payload routes (`/admin` and `/api`) run directly inside Next.js App Router. | `src/app/(payload)/admin` and `src/app/(payload)/api` |
+| **Collections** | Database tables representing repeatable content types (e.g. posts, pages, properties). | [src/collections/Properties.ts](file:///home/novel/my-payload-app/src/collections/Properties.ts), [src/collections/Blogs.ts](file:///home/novel/my-payload-app/src/collections/Blogs.ts) |
+| **Globals** | Single-instance content types for global site settings (e.g. Header nav, Footer links, Site Title). | [src/globals/Settings.ts](file:///home/novel/my-payload-app/src/globals/Settings.ts), `src/Header/config.ts` |
+| **Blocks** | Dynamic visual UI components that content editors can insert, reorder, and configure on any page. | `src/blocks/ArchiveBlock`, `src/blocks/CallToAction`, `src/blocks/Carousel` |
+| **Local API (`getPayload`)** | Directly query CMS data inside Next.js Server Components with 0 HTTP latency (bypassing REST/GraphQL). | `const payload = await getPayload({ config }); await payload.find({ collection: 'properties' });` |
+| **Lexical Editor** | The default rich text editor in Payload that outputs clean JSON data instead of raw HTML. | Configured via `@payloadcms/richtext-lexical` in [src/fields/defaultLexical.ts](file:///home/novel/my-payload-app/src/fields/defaultLexical.ts) |
+| **Database Adapter** | The database connector. This project uses SQLite (`@payloadcms/db-sqlite`), stored locally in `my-payload-app.db`. | Configured in [src/payload.config.ts](file:///home/novel/my-payload-app/src/payload.config.ts) |
 
-Use the `create-payload-app` CLI to clone this template directly to your machine:
+---
 
-```bash
-pnpx create-payload-app my-project -t website
+## 2. Architecture Overview
+
+```mermaid
+flowchart TD
+    subgraph Browser / Client
+        A[Next.js Frontend Pages]
+        B[Payload Admin Panel /admin]
+    end
+
+    subgraph Server / Node.js Next.js App Router
+        C[Next.js App Router API Routes /api]
+        D[Payload Local API getPayload]
+    end
+
+    subgraph Storage
+        E[(SQLite DB: my-payload-app.db)]
+        F[Media Directory /public/media]
+    end
+
+    A -->|Server Components / Direct Local API| D
+    B -->|Admin UI / React Components| C
+    C -->|Adapter Bridge| D
+    D -->|SQLite Adapter| E
+    D -->|Sharp / Image Processing| F
 ```
 
-### Development
-
-1. First [clone the repo](#clone) if you have not done so already
-1. `cd my-project && cp .env.example .env` to copy the example environment variables
-1. `pnpm install && pnpm dev` to install dependencies and start the dev server
-1. open `http://localhost:3000` to open the app in your browser
-
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
-
-## How it works
-
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
-
-### Collections
-
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
-
-- #### Users (Authentication)
-
-  Users are auth-enabled collections that have access to the admin panel and unpublished content. See [Access Control](#access-control) for more details.
-
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/3.x/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
-
-- #### Posts
-
-  Posts are used to generate blog posts, news articles, or any other type of content that is published over time. All posts are layout builder enabled so you can generate unique layouts for each post using layout-building blocks, see [Layout Builder](#layout-builder) for more details. Posts are also draft-enabled so you can preview them before publishing them to your website, see [Draft Preview](#draft-preview) for more details.
-
-- #### Pages
-
-  All pages are layout builder enabled so you can generate unique layouts for each page using layout-building blocks, see [Layout Builder](#layout-builder) for more details. Pages are also draft-enabled so you can preview them before publishing them to your website, see [Draft Preview](#draft-preview) for more details.
-
-- #### Media
-
-  This is the uploads enabled collection used by pages, posts, and projects to contain media like images, videos, downloads, and other assets. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
-
-- #### Categories
-
-  A taxonomy used to group posts together. Categories can be nested inside of one another, for example "News > Technology". See the official [Payload Nested Docs Plugin](https://payloadcms.com/docs/plugins/nested-docs) for more details.
-
-### Globals
-
-See the [Globals](https://payloadcms.com/docs/configuration/globals) docs for details on how to extend this functionality.
-
-- `Header`
-
-  The data required by the header on your front-end like nav links.
-
-- `Footer`
-
-  Same as above but for the footer of your site.
-
-## Access control
-
-Basic access control is setup to limit access to various content based based on publishing status.
-
-- `users`: Users can access the admin panel and create or edit content.
-- `posts`: Everyone can access published posts, but only users can create, update, or delete them.
-- `pages`: Everyone can access published pages, but only users can create, update, or delete them.
-
-For more details on how to extend this functionality, see the [Payload Access Control](https://payloadcms.com/docs/access-control/overview#access-control) docs.
-
-## Layout Builder
-
-Create unique page layouts for any type of content using a powerful layout builder. This template comes pre-configured with the following layout building blocks:
-
-- Hero
-- Content
-- Media
-- Call To Action
-- Archive
-
-Each block is fully designed and built into the front-end website that comes with this template. See [Website](#website) for more details.
-
-## Lexical editor
-
-A deep editorial experience that allows complete freedom to focus just on writing content without breaking out of the flow with support for Payload blocks, media, links and other features provided out of the box. See [Lexical](https://payloadcms.com/docs/rich-text/overview) docs.
-
-## Draft Preview
-
-All posts and pages are draft-enabled so you can preview them before publishing them to your website. To do this, these collections use [Versions](https://payloadcms.com/docs/configuration/collections#versions) with `drafts` set to `true`. This means that when you create a new post, project, or page, it will be saved as a draft and will not be visible on your website until you publish it. This also means that you can preview your draft before publishing it to your website. To do this, we automatically format a custom URL which redirects to your front-end to securely fetch the draft version of your content.
-
-Since the front-end of this template is statically generated, this also means that pages, posts, and projects will need to be regenerated as changes are made to published documents. To do this, we use an `afterChange` hook to regenerate the front-end when a document has changed and its `_status` is `published`.
-
-For more details on how to extend this functionality, see the official [Draft Preview Example](https://github.com/payloadcms/payload/tree/3.x/examples/draft-preview).
-
-## Live preview
-
-In addition to draft previews you can also enable live preview to view your end resulting page as you're editing content with full support for SSR rendering. See [Live preview docs](https://payloadcms.com/docs/live-preview/overview) for more details.
-
-## On-demand Revalidation
-
-We've added hooks to collections and globals so that all of your pages, posts, footer, or header changes will automatically be updated in the frontend via on-demand revalidation supported by Nextjs.
-
-> Note: if an image has been changed, for example it's been cropped, you will need to republish the page it's used on in order to be able to revalidate the Nextjs image cache.
-
-## SEO
-
-This template comes pre-configured with the official [Payload SEO Plugin](https://payloadcms.com/docs/plugins/seo) for complete SEO control from the admin panel. All SEO data is fully integrated into the front-end website that comes with this template. See [Website](#website) for more details.
-
-## Search
-
-This template also pre-configured with the official [Payload Search Plugin](https://payloadcms.com/docs/plugins/search) to showcase how SSR search features can easily be implemented into Next.js with Payload. See [Website](#website) for more details.
-
-## Redirects
-
-If you are migrating an existing site or moving content to a new URL, you can use the `redirects` collection to create a proper redirect from old URLs to new ones. This will ensure that proper request status codes are returned to search engines and that your users are not left with a broken link. This template comes pre-configured with the official [Payload Redirects Plugin](https://payloadcms.com/docs/plugins/redirects) for complete redirect control from the admin panel. All redirects are fully integrated into the front-end website that comes with this template. See [Website](#website) for more details.
-
-## Jobs and Scheduled Publish
-
-We have configured [Scheduled Publish](https://payloadcms.com/docs/versions/drafts#scheduled-publish) which uses the [jobs queue](https://payloadcms.com/docs/jobs-queue/jobs) in order to publish or unpublish your content on a scheduled time. The tasks are run on a cron schedule and can also be run as a separate instance if needed.
-
-> Note: When deployed on Vercel, depending on the plan tier, you may be limited to daily cron only.
-
-## Website
-
-This template includes a beautifully designed, production-ready front-end built with the [Next.js App Router](https://nextjs.org), served right alongside your Payload app in a instance. This makes it so that you can deploy both your backend and website where you need it.
-
-Core features:
-
-- [Next.js App Router](https://nextjs.org)
-- [TypeScript](https://www.typescriptlang.org)
-- [React Hook Form](https://react-hook-form.com)
-- [Payload Admin Bar](https://github.com/payloadcms/payload/tree/3.x/packages/admin-bar)
-- [TailwindCSS styling](https://tailwindcss.com/)
-- [shadcn/ui components](https://ui.shadcn.com/)
-- User Accounts and Authentication
-- Fully featured blog
-- Publication workflow
-- Dark mode
-- Pre-made layout building blocks
-- SEO
-- Search
-- Redirects
-- Live preview
-
-### Cache
-
-Although Next.js includes a robust set of caching strategies out of the box, Payload Cloud proxies and caches all files through Cloudflare using the [Official Cloud Plugin](https://www.npmjs.com/package/@payloadcms/payload-cloud). This means that Next.js caching is not needed and is disabled by default. If you are hosting your app outside of Payload Cloud, you can easily reenable the Next.js caching mechanisms by removing the `no-store` directive from all fetch requests in `./src/app/_api` and then removing all instances of `export const dynamic = 'force-dynamic'` from pages files, such as `./src/app/(pages)/[slug]/page.tsx`. For more details, see the official [Next.js Caching Docs](https://nextjs.org/docs/app/building-your-application/caching).
-
-## Development
-
-To spin up this example locally, follow the [Quick Start](#quick-start). Then [Seed](#seed) the database with a few pages, posts, and projects.
-
-### Working with Postgres
-
-Postgres and other SQL-based databases follow a strict schema for managing your data. In comparison to our MongoDB adapter, this means that there's a few extra steps to working with Postgres.
-
-Note that often times when making big schema changes you can run the risk of losing data if you're not manually migrating it.
-
-#### Local development
-
-Ideally we recommend running a local copy of your database so that schema updates are as fast as possible. By default the Postgres adapter has `push: true` for development environments. This will let you add, modify and remove fields and collections without needing to run any data migrations.
-
-If your database is pointed to production you will want to set `push: false` otherwise you will risk losing data or having your migrations out of sync.
-
-#### Migrations
-
-[Migrations](https://payloadcms.com/docs/database/migrations) are essentially SQL code versions that keeps track of your schema. When deploy with Postgres you will need to make sure you create and then run your migrations.
-
-Locally create a migration
-
-```bash
-pnpm payload migrate:create
+### Key Technical Characteristics
+- **Zero HTTP Overhead**: Frontend Server Components retrieve database documents using Payload's `Local API` directly within Node.js execution.
+- **SQLite Database**: Data is stored in `my-payload-app.db` at the project root, pre-populated with real estate listings, blogs, pages, and categories.
+- **Automatic Image Optimization**: Next.js `next/image` is configured with wildcard patterns and `/media/**` paths to deliver high-performance image assets.
+- **Fail-Safe Route Guards**: All static dynamic page routes (`/properties/[slug]`, `/posts/[slug]`, etc.) include try-catch error boundaries to handle database initialization seamlessly during cold builds.
+
+---
+
+## 3. Complete Directory & File Structure
+
+Below is the detailed breakdown of the codebase layout:
+
+```
+my-payload-app/
+├── .env                              # Environment variables (DATABASE_URL, PAYLOAD_SECRET, etc.)
+├── .env.example                      # Reference template for required environment variables
+├── Dockerfile                        # Docker image setup (Node.js 20 slim base image for production)
+├── docker-compose.yml                # Container orchestration configuration
+├── my-payload-app.db                 # Primary SQLite database containing pre-populated CMS data
+├── next.config.ts                    # Next.js config (Payload wrapper, image hostnames, standalone mode)
+├── next-sitemap.config.cjs           # Automated sitemap generation configuration
+├── package.json                      # NPM dependencies, scripts, and package metadata
+├── payload.db                        # Fallback database file
+├── playwright.config.ts              # End-to-End testing configuration (Playwright)
+├── tailwind.config.mjs               # Tailwind CSS theme and styling configuration
+├── tsconfig.json                     # TypeScript compiler config & path aliases (@/* -> ./src/*)
+├── vitest.config.mts                 # Integration test runner configuration (Vitest)
+│
+├── public/                           # Static static files served directly
+│   ├── favicon.ico                   # Website browser icon
+│   └── media/                        # User-uploaded images & property media assets
+│
+├── tests/                            # Test suites directory
+│   ├── e2e/                          # End-to-End browser tests (Playwright)
+│   │   ├── admin.e2e.spec.ts         # Tests admin login flow & collection navigation
+│   │   └── frontend.e2e.spec.ts      # Tests homepage & property detail rendering
+│   ├── helpers/                      # Test helper utilities
+│   │   ├── login.ts                  # Helper function for automated admin login
+│   │   └── seedUser.ts               # Test user creation & cleanup helper
+│   └── int/                          # Backend API integration tests (Vitest)
+│       └── api.int.spec.ts           # Integration tests for Payload Local API
+│
+└── src/                              # Main application source code
+    ├── payload.config.ts             # Central Payload CMS configuration file
+    ├── payload-types.ts              # Auto-generated TypeScript interfaces for CMS schemas
+    ├── environment.d.ts              # Custom environment variable type declarations
+    ├── cssVariables.js               # Exported layout and spacing CSS variables
+    │
+    ├── access/                       # Payload CMS Access Control rules
+    │   ├── authenticated.ts          # Restricts edit access to logged-in admins
+    │   └── authenticatedOrPublished.ts# Allows public read if status is published
+    │
+    ├── app/                          # Next.js App Router routes
+    │   ├── (frontend)/               # Customer-facing website pages
+    │   │   ├── layout.tsx            # Main website layout (Header, Footer, Providers)
+    │   │   ├── page.tsx              # Homepage route component
+    │   │   ├── globals.css           # Global CSS styles & Tailwind directives
+    │   │   ├── about/                # About Us page route
+    │   │   ├── blogs/                # Blog listings & category filter pages
+    │   │   ├── concierge/            # Concierge luxury services page
+    │   │   ├── contact/              # Contact form & location details page
+    │   │   ├── other-inquiries/      # General inquiry form page
+    │   │   ├── posts/                # Blog post detail page routes ([slug])
+    │   │   ├── privacy-policy/       # Privacy policy page
+    │   │   ├── properties/           # Real estate listing grid & detail pages ([slug])
+    │   │   ├── search/               # Search result page route
+    │   │   ├── terms-and-conditions/ # Terms & Conditions page
+    │   │   └── thank-you/            # Submission confirmation page
+    │   │
+    │   └── (payload)/                # Embedded Payload CMS routes
+    │       ├── admin/                # Admin Panel UI (/admin)
+    │       └── api/                  # REST & GraphQL API endpoints (/api)
+    │
+    ├── blocks/                       # Dynamic Layout Builder Blocks
+    │   ├── RenderBlocks.tsx          # Master block switcher rendering array of dynamic blocks
+    │   ├── ArchiveBlock/             # Collection archive grid (Blogs / Properties)
+    │   ├── Banner/                   # Callout banners and notices
+    │   ├── CallToAction/             # CTA banners with buttons and images
+    │   ├── Carousel/                 # Testimonial & image slider block
+    │   ├── Code/                     # Syntax-highlighted code snippet renderer
+    │   ├── Content/                  # Multi-column rich text layout block
+    │   ├── Form/                     # Form Builder block integration (Contact forms)
+    │   ├── InquiryHero/              # Custom inquiry page header banner
+    │   ├── MediaBlock/               # Single image/video display block
+    │   └── RelatedPosts/             # Grid block for related articles/properties
+    │
+    ├── collections/                  # Payload CMS Collection Configurations (DB Tables)
+    │   ├── Blogs/                    # Blog collection config & hooks
+    │   ├── Pages/                    # Dynamic Pages collection config & hooks
+    │   ├── Posts/                    # News & Updates collection config
+    │   ├── Users/                    # Admin users & credentials config
+    │   ├── Categories.ts             # Taxonomy collection for blogs & properties
+    │   ├── CF7Tracker.ts             # Contact Form 7 lead tracker collection
+    │   ├── Media.ts                  # Media upload collection config (Image resize rules)
+    │   └── Properties.ts             # Luxury real estate property listings collection
+    │
+    ├── components/                   # Shared React Components
+    │   ├── ui/                       # Low-level UI primitives (Button, Input, Select, Dialog)
+    │   ├── AdminBar/                 # Top admin bar for logged-in users on frontend
+    │   ├── BeforeDashboard/          # Custom admin dashboard banner component
+    │   ├── BeforeLogin/              # Custom admin login page component
+    │   ├── Card/                     # Property & blog summary card component
+    │   ├── CollectionArchive/        # Paginated grid layout for items
+    │   ├── FloatingContactWidget/    # Quick call/WhatsApp floating action bar
+    │   ├── LivePreviewListener/      # React live preview iframe listener
+    │   ├── Logo/                     # Novel Signature Homes brand logo component
+    │   ├── Media/                    # Optimized image wrapper component
+    │   ├── NSHHomePage/              # Custom visual homepage component
+    │   ├── Pagination/               # Reusable pagination controls component
+    │   └── RichText/                 # Lexical JSON rich text renderer component
+    │
+    ├── fields/                       # Reusable Custom CMS Field Definitions
+    │   ├── defaultLexical.ts         # Lexical rich text editor config
+    │   ├── link.ts                   # Internal CMS link vs external URL selector
+    │   ├── linkGroup.ts              # Array of link fields (Navigation menus)
+    │   └── seo.ts                    # SEO meta title, description, and preview image group
+    │
+    ├── globals/                      # Global CMS Configurations
+    │   ├── Header/                   # Header navigation config & frontend header component
+    │   ├── Footer/                   # Footer links & copyright config
+    │   └── Settings.ts               # Global site settings config
+    │
+    ├── heros/                        # Hero Section Renderer Components
+    │   ├── HighImpact/               # Full-screen dynamic hero section
+    │   ├── MediumImpact/             # Sub-page hero section banner
+    │   ├── LowImpact/                # Minimal text-only hero section
+    │   └── RenderHero.tsx            # Hero router component
+    │
+    ├── hooks/                        # Custom Payload & React Hooks
+    │   ├── populateArchiveBlock.ts   # Auto-populates archive blocks with DB entries
+    │   └── revalidatePath.ts         # Revalidates Next.js static cache on document edit
+    │
+    ├── plugins/                      # Payload CMS Plugins Configuration
+    │   └── index.ts                  # Configures SEO, FormBuilder, Redirects, NestedDocs plugins
+    │
+    ├── providers/                    # React Context State Providers
+    │   ├── HeaderTheme/              # Controls header overlay theme (Light / Dark)
+    │   └── Theme/                    # Site color mode provider
+    │
+    ├── scripts/                      # Database Maintenance & Utility Scripts
+    │   ├── add-additional-content-db-columns.ts # Adds SQLite schema columns for dynamic pages
+    │   ├── cleanSlate.ts             # Clears database tables for fresh test runs
+    │   ├── createTestUsers.ts        # Creates test admin credentials programmatically
+    │   ├── populate-all-pages.ts     # Populates default page content into CMS
+    │   ├── seedDemoBlogs.ts          # Seeds demo blog posts and categories
+    │   └── seedDemoProperty.ts       # Seeds real estate property listings
+    │
+    └── utilities/                    # Helper Utility Functions
+        ├── generateMeta.ts           # Generates HTML OpenGraph tags from SEO fields
+        ├── getDocument.ts            # Fetches single document by slug with error handling
+        ├── getGlobals.ts             # Fetches Global site data (Header/Footer/Settings)
+        ├── getMediaUrl.ts            # Resolves absolute URL for media uploads
+        └── getURL.ts                 # Formats environment base URLs
 ```
 
-This creates the migration files you will need to push alongside with your new configuration.
+---
 
-On the server after building and before running `pnpm start` you will want to run your migrations
+## 4. Quick Start & Local Setup
 
-```bash
-pnpm payload migrate
-```
+Follow these steps to run the application on your local machine:
 
-This command will check for any migrations that have not yet been run and try to run them and it will keep a record of migrations that have been run in the database.
+### Prerequisites
+- **Node.js**: `v18.20.2` or `>=v20.9.0` (Recommended: Node 20 LTS)
+- **Package Manager**: `pnpm` (version 9 or 10) or `npm`
 
-### Docker
-
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
-
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
-
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
-
-### Seed
-
-To seed the database with a few pages, posts, and projects you can click the 'seed database' link from the admin panel.
-
-The seed script will also create a demo user for demonstration purposes only:
-
-- Demo Author
-  - Email: `demo-author@payloadcms.com`
-  - Password: `password`
-
-> NOTICE: seeding the database is destructive because it drops your current database to populate a fresh one from the seed template. Only run this command if you are starting a new project or can afford to lose your current data.
-
-## Production
-
-To run Payload in production, you need to build and start the Admin panel. To do so, follow these steps:
-
-1. Invoke the `next build` script by running `pnpm build` or `npm run build` in your project root. This creates a `.next` directory with a production-ready admin bundle.
-1. Finally run `pnpm start` or `npm run start` to run Node in production and serve Payload from the `.build` directory.
-1. When you're ready to go live, see Deployment below for more details.
-
-### Deploying to Vercel
-
-This template can also be deployed to Vercel for free. You can get started by choosing the Vercel DB adapter during the setup of the template or by manually installing and configuring it:
+### Step 1: Clone & Configure Environment Variables
+Copy `.env.example` to create a local `.env` file:
 
 ```bash
-pnpm add @payloadcms/db-vercel-postgres
+cp .env.example .env
 ```
 
-```ts
-// payload.config.ts
-import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
+Ensure your `.env` contains the following default configuration:
 
-export default buildConfig({
-  // ...
-  db: vercelPostgresAdapter({
-    pool: {
-      connectionString: process.env.POSTGRES_URL || '',
+```ini
+# Database Connection (SQLite)
+DATABASE_URL=file:./my-payload-app.db
+PAYLOAD_DB_PUSH=true
+
+# Secret key for signing Payload JWT tokens
+PAYLOAD_SECRET=a-very-secret-key-for-local-development
+
+# Public Server URL
+NEXT_PUBLIC_SERVER_URL=http://localhost:3000
+
+# Optional SMTP Email Configuration
+SMTP_HOST=sandbox.smtp.mailtrap.io
+SMTP_PORT=2525
+SMTP_USER=your_smtp_user
+SMTP_PASS=your_smtp_password
+SMTP_FROM=info@novelsignaturehomes.com
+SMTP_FROM_NAME=Novel Signature Homes
+```
+
+### Step 2: Install Dependencies & Run Development Server
+
+```bash
+# Install packages
+pnpm install
+
+# Start development server
+pnpm dev
+```
+
+### Step 3: Access Admin Dashboard & Frontend
+
+- **Frontend Website**: Open [http://localhost:3000](http://localhost:3000)
+- **Payload Admin Panel**: Open [http://localhost:3000/admin](http://localhost:3000/admin)
+
+> **Note**: On your first visit to `/admin`, Payload will prompt you to create your initial administrator account. Alternatively, pre-populated data is already stored inside `my-payload-app.db`.
+
+---
+
+## 5. Step-by-Step Development Lifecycle
+
+Here is a practical, step-by-step walkthrough for adding a new field or feature to the project.
+
+---
+
+### Step 1: Define Admin Schema (Collections & Blocks)
+
+CMS schemas live in `src/collections/` or `src/blocks/`.
+
+#### Example: Adding a `locationSummary` field to [src/collections/Properties.ts](file:///home/novel/my-payload-app/src/collections/Properties.ts)
+
+Open `src/collections/Properties.ts` and add your field into the `fields` array:
+
+```typescript
+// src/collections/Properties.ts
+import type { CollectionConfig } from 'payload'
+
+export const Properties: CollectionConfig = {
+  slug: 'properties',
+  fields: [
+    {
+      name: 'title',
+      type: 'text',
+      required: true,
     },
-  }),
-  // ...
+    // NEW FIELD ADDITION:
+    {
+      name: 'locationSummary',
+      type: 'text',
+      label: 'Location Summary (e.g. "Palm Jumeirah, Dubai")',
+      admin: {
+        placeholder: 'Enter location neighborhood...',
+      },
+    },
+    {
+      name: 'price',
+      type: 'number',
+      required: true,
+    },
+  ],
+}
 ```
 
-We also support Vercel's blob storage:
+---
+
+### Step 2: Generate Types & Import Map
+
+Whenever you modify Payload collections, blocks, or custom admin components, run type generation:
 
 ```bash
-pnpm add @payloadcms/storage-vercel-blob
+# 1. Update TypeScript interfaces in src/payload-types.ts
+pnpm generate:types
+
+# 2. Update Payload Admin Component Map
+pnpm generate:importmap
 ```
 
-```ts
-// payload.config.ts
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+This guarantees full TypeScript autocompletion across your Next.js pages and prevents Admin Panel compilation errors.
 
-export default buildConfig({
-  // ...
-  plugins: [
-    vercelBlobStorage({
-      collections: {
-        [Media.slug]: true,
-      },
-      token: process.env.BLOB_READ_WRITE_TOKEN || '',
-    }),
-  ],
-  // ...
+---
+
+### Step 3: Update Database Schema (SQLite Migrations & Auto-Push)
+
+In local development, `PAYLOAD_DB_PUSH=true` automatically syncs missing columns to `my-payload-app.db` when the server starts.
+
+If you ever need to manually execute SQLite column updates, create a quick tsx script in `src/scripts/` (e.g. `src/scripts/add-location-column.ts`):
+
+```typescript
+// src/scripts/add-location-column.ts
+import Database from 'better-sqlite3'
+import path from 'path'
+
+const dbPath = path.resolve(process.cwd(), 'my-payload-app.db')
+const db = new Database(dbPath)
+
+try {
+  db.exec(`ALTER TABLE properties ADD COLUMN location_summary TEXT;`)
+  console.log('✅ Column location_summary successfully added to SQLite!')
+} catch (err) {
+  console.log('Notice: Column may already exist or table was auto-updated:', err)
+}
 ```
 
-There is also a simplified [one click deploy](https://github.com/payloadcms/payload/tree/3.x/templates/with-vercel-postgres) to Vercel should you need it.
+Execute script:
+```bash
+npx tsx ./src/scripts/add-location-column.ts
+```
 
-### Self-hosting
+---
 
-Before deploying your app, you need to:
+### Step 4: Fetch & Render Data on Next.js Frontend
 
-1. Ensure your app builds and serves in production. See [Production](#production) for more details.
-2. You can then deploy Payload as you would any other Node.js or Next.js application either directly on a VPS, DigitalOcean's Apps Platform, via Coolify or more. More guides coming soon.
+Display your newly added CMS field in a Next.js Server Component page (e.g. `src/app/(frontend)/properties/page.tsx`):
 
-You can also deploy your app manually, check out the [deployment documentation](https://payloadcms.com/docs/production/deployment) for full details.
+```tsx
+import { getPayload } from 'payload'
+import configPromise from '@/payload.config'
 
-## Questions
+export default async function PropertiesPage() {
+  // Query Payload CMS directly via Local API
+  const payload = await getPayload({ config: configPromise })
 
-If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+  const properties = await payload.find({
+    collection: 'properties',
+    where: { _status: { equals: 'published' } },
+  })
+
+  return (
+    <main className="container mx-auto py-10">
+      <h1 className="text-3xl font-bold mb-6">Exclusive Properties</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {properties.docs.map((property) => (
+          <div key={property.id} className="border rounded-xl p-5 shadow-sm">
+            <h2 className="text-xl font-bold">{property.title}</h2>
+            {property.locationSummary && (
+              <p className="text-sm text-gray-500 mb-2">{property.locationSummary}</p>
+            )}
+            <p className="text-emerald-600 font-bold">${property.price.toLocaleString()}</p>
+          </div>
+        ))}
+      </div>
+    </main>
+  )
+}
+```
+
+---
+
+### Step 5: Live Preview & Admin Bar Setup
+
+Payload includes real-time live preview editing directly in the admin panel iframe.
+
+To enable live preview updates inside client components, use the `@payloadcms/live-preview-react` hook:
+
+```tsx
+'use client'
+import { useLivePreview } from '@payloadcms/live-preview-react'
+
+export function PropertyDetailClient({ initialData }) {
+  const { data } = useLivePreview({
+    initialData,
+    serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
+    depth: 2,
+  })
+
+  return <h1>{data.title}</h1>
+}
+```
+
+---
+
+### Step 6: Automated Testing (Vitest & Playwright)
+
+This repository includes both unit/integration tests and browser End-to-End tests.
+
+#### 1. Integration Tests (Vitest)
+Integration tests verify Payload Local API methods and configuration integrity.  
+Test File: `tests/int/api.int.spec.ts`
+
+Run Integration Tests:
+```bash
+pnpm test:int
+```
+
+#### 2. End-to-End Browser Tests (Playwright)
+Playwright launches automated browser runs testing admin login and frontend user routes.  
+Test Files: `tests/e2e/admin.e2e.spec.ts`, `tests/e2e/frontend.e2e.spec.ts`
+
+Run E2E Tests:
+```bash
+pnpm test:e2e
+```
+
+#### Run All Test Suites:
+```bash
+pnpm test
+```
+
+---
+
+## 6. Production Deployment & Containerization
+
+### Docker Build & Standalone Output
+This project is configured with Next.js `output: 'standalone'` and a multi-stage Docker build utilizing `node:20-slim`.
+
+#### Build Docker Image Locally:
+```bash
+docker build -t my-payload-app .
+```
+
+#### Run Docker Container:
+```bash
+docker run -p 3000:3000 \
+  -e PAYLOAD_SECRET="your-production-secret-key" \
+  -e DATABASE_URL="file:./my-payload-app.db" \
+  my-payload-app
+```
+
+### Deploying to Cloud Platforms (Render.com, Vercel, VPS)
+
+1. **Environment Variables on Cloud Provider**:
+   - `PAYLOAD_SECRET`: Set a secure secret key string.
+   - `DATABASE_URL`: `file:./my-payload-app.db` (or remote PostgreSQL URI if using `@payloadcms/db-postgres`).
+   - `PAYLOAD_DB_PUSH`: `false` (in production).
+   - `NEXT_PUBLIC_SERVER_URL`: Your live domain (e.g. `https://your-domain.onrender.com`).
+
+2. **Pre-populated Database & Media**:
+   - `my-payload-app.db` and `/public/media` are bundled in Git, ensuring zero-configuration startup upon initial cloud deployment.
+
+---
+
+## 7. Database Maintenance & Seeding Utilities Reference
+
+The table below lists all built-in npm and tsx utility scripts for database seeding, user creation, and table maintenance:
+
+| Script / Command | File Location | Purpose & Description |
+| :--- | :--- | :--- |
+| `pnpm seed:blogs` | `src/scripts/seedDemoBlogs.ts` | Populates demo blog posts and categories |
+| `npx tsx ./src/scripts/seedDemoProperty.ts` | `src/scripts/seedDemoProperty.ts` | Populates real estate property listings data |
+| `npx tsx ./src/scripts/createTestUsers.ts` | `src/scripts/createTestUsers.ts` | Creates initial test admin account credentials |
+| `npx tsx ./src/scripts/cleanSlate.ts` | `src/scripts/cleanSlate.ts` | Resets CMS database tables for clean testing |
+| `npx tsx ./src/scripts/populate-all-pages.ts` | `src/scripts/populate-all-pages.ts` | Populates default website static pages (Home, About, Privacy, etc.) |
+| `npx tsx ./src/scripts/add-additional-content-db-columns.ts` | `src/scripts/add-additional-content-db-columns.ts` | Adds extra SQLite schema columns for dynamic page block layouts |
+
+---
+
+## 8. Troubleshooting & FAQs
+
+### ⚠️ Common Issues & Recommended Fixes
+
+1. **TypeScript Error: `Property X does not exist on type Page/Property`**
+   - **Cause**: The collection schema was modified, but TypeScript types have not been regenerated.
+   - **Fix**: Run `pnpm generate:types`.
+
+2. **SQLite Error: `no such column: column_name`**
+   - **Cause**: A new field was added to a collection, but SQLite table schema doesn't have the column.
+   - **Fix**: Ensure `.env` has `PAYLOAD_DB_PUSH=true` during dev server startup, or run the corresponding migration script in `src/scripts/`.
+
+3. **Admin Panel components fail to load or show import errors**
+   - **Cause**: Admin component mapping is out of date.
+   - **Fix**: Run `pnpm generate:importmap`.
+
+4. **Port 3000 is busy or SQLite database is locked**
+   - **Cause**: An existing `pnpm dev` process is still running in the background.
+   - **Fix**: Terminate Node processes with `killall node` or stop conflicting terminal windows.
+
+5. **Images fail to render or return 404**
+   - **Cause**: Image path mismatch or missing `next.config.ts` hostname pattern.
+   - **Fix**: Check `next.config.ts` for `/media/**` pattern or verify file presence in `public/media/`.
+
+---
+
+## 🤝 Questions & Resources
+
+- [Payload CMS Official Documentation](https://payloadcms.com/docs)
+- [Next.js App Router Documentation](https://nextjs.org/docs/app)
+- [Payload CMS Discord Community](https://discord.com/invite/payload)

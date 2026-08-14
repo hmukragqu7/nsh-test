@@ -4,6 +4,9 @@ import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import PropertyDetailClient from './PropertyDetailClient'
 
+export const dynamic = 'force-dynamic'
+export const dynamicParams = true
+
 interface PropertyPageProps {
   params: Promise<{
     slug: string
