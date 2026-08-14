@@ -29,11 +29,15 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+ENV PAYLOAD_SECRET="build_secret_key_docker"
+ENV DATABASE_URL="file:./my-payload-app.db"
+ENV PAYLOAD_DB_PUSH="true"
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/my-payload-app.db ./my-payload-app.db
 
 RUN mkdir .next
 RUN chown nextjs:nodejs .next
