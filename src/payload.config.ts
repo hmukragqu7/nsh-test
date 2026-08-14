@@ -79,7 +79,7 @@ export default buildConfig({
   cors: [getServerSideURL(), '*'].filter(Boolean),
   globals: [Header, Footer, Settings],
   plugins,
-  secret: process.env.PAYLOAD_SECRET,
+  secret: process.env.PAYLOAD_SECRET || 'a-very-secret-key-that-is-overridden-in-production',
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
