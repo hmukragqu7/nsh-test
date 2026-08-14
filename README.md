@@ -20,6 +20,7 @@
 6. [Production Deployment & Containerization (Docker & Render.com)](#6-production-deployment--containerization)
 7. [Database Maintenance & Seeding Utilities Reference](#7-database-maintenance--seeding-utilities-reference)
 8. [Troubleshooting & FAQs](#8-troubleshooting--faqs)
+9. [Optional Note: How Images & Dynamic Pages Load Easily on the Live Website](#9-optional-note-how-images--dynamic-pages-load-easily-on-the-live-website)
 
 ---
 
@@ -533,6 +534,29 @@ The table below lists all built-in npm and tsx utility scripts for database seed
 5. **Images fail to render or return 404**
    - **Cause**: Image path mismatch or missing `next.config.ts` hostname pattern.
    - **Fix**: Check `next.config.ts` for `/media/**` pattern or verify file presence in `public/media/`.
+
+---
+
+## 9. 💡 Optional Note: How Images & Dynamic Pages Load Easily on the Live Website
+
+> [!NOTE]
+> This section is an optional architectural note explaining how dynamic content rendering and image asset serving work seamlessly on the live production website (e.g. deployed on Render.com or custom servers).
+
+### 🖼️ 1. How Images Load Easily & Fast on the Live Site
+* **Bundled Media Assets (`/public/media`)**:
+  All property images, logos, and uploaded media are stored in the `/public/media` directory. In Docker and Render deployments, this directory is included directly in the Git repository and built into the deployment container, ensuring zero broken image links upon initial launch.
+* **Next.js Image Optimization (`next.config.ts`)**:
+  Next.js `images` configuration is set up with `localPatterns` (`/media/**`, `/api/media/file/**`) and wildcard `remotePatterns` (`protocol: 'https', hostname: '**'`). This enables the Next.js `<Image />` component to automatically resize, compress, convert images to modern WebP/AVIF formats, and cache them for maximum page speed.
+* **Sharp Integration**:
+  Payload CMS incorporates `sharp` natively to generate responsive focal points, cropped variants, and thumbnails upon image upload in `/admin`.
+
+### ⚡ 2. How Dynamic Pages Load Smoothly without Errors or 404s
+* **Real-time Server Rendering (`export const dynamic = 'force-dynamic'`)**:
+  Configured on dynamic routes (`/properties/[slug]`, `/blogs/[slug]`, `/posts/[slug]`, `/[slug]`). Whenever a visitor loads a page, Next.js queries SQLite via Payload's Local API on the server in real-time. Any edits made in `/admin` reflect instantly without requiring a site rebuild or redeployment.
+* **Instant Support for New Content (`export const dynamicParams = true`)**:
+  Guarantees that when a brand new property or blog post is published in Payload Admin, its URL works **immediately**. If a visitor loads a newly created URL (e.g. `/properties/brand-new-villa`), Next.js dynamically fetches and renders it on-demand instead of throwing a `404 Not Found` error.
+* **Fail-Safe Route Guards**:
+  All dynamic pages feature try/catch error boundaries. If a database query fails or a document is missing, it falls back gracefully or renders `notFound()`, keeping the live site robust and crash-free.
 
 ---
 
