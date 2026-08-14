@@ -100,11 +100,76 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
               ))
             ) : (
               <>
-                <Link href="/" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>Home</Link>
-                <Link href="/properties" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>Properties</Link>
-                <Link href="/concierge-service" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>Concierge</Link>
-                <Link href="/blogs" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>Blogs</Link>
-                <Link href="/about" onClick={() => setMobileOpen(false)} style={{ color: '#fff', fontSize: '14px', letterSpacing: '1.5px', textDecoration: 'none', fontWeight: '500', padding: '0.5rem 0' }}>About</Link>
+                <Link
+                  href="/"
+                  onClick={() => setMobileOpen(false)}
+                  style={{
+                    color: '#fff',
+                    fontSize: '14px',
+                    letterSpacing: '1.5px',
+                    textDecoration: 'none',
+                    fontWeight: '500',
+                    padding: '0.5rem 0',
+                  }}
+                >
+                  Home
+                </Link>
+                <Link
+                  href="/properties"
+                  onClick={() => setMobileOpen(false)}
+                  style={{
+                    color: '#fff',
+                    fontSize: '14px',
+                    letterSpacing: '1.5px',
+                    textDecoration: 'none',
+                    fontWeight: '500',
+                    padding: '0.5rem 0',
+                  }}
+                >
+                  Properties
+                </Link>
+                <Link
+                  href="/concierge-service"
+                  onClick={() => setMobileOpen(false)}
+                  style={{
+                    color: '#fff',
+                    fontSize: '14px',
+                    letterSpacing: '1.5px',
+                    textDecoration: 'none',
+                    fontWeight: '500',
+                    padding: '0.5rem 0',
+                  }}
+                >
+                  Concierge
+                </Link>
+                <Link
+                  href="/blogs"
+                  onClick={() => setMobileOpen(false)}
+                  style={{
+                    color: '#fff',
+                    fontSize: '14px',
+                    letterSpacing: '1.5px',
+                    textDecoration: 'none',
+                    fontWeight: '500',
+                    padding: '0.5rem 0',
+                  }}
+                >
+                  Blogs
+                </Link>
+                <Link
+                  href="/about"
+                  onClick={() => setMobileOpen(false)}
+                  style={{
+                    color: '#fff',
+                    fontSize: '14px',
+                    letterSpacing: '1.5px',
+                    textDecoration: 'none',
+                    fontWeight: '500',
+                    padding: '0.5rem 0',
+                  }}
+                >
+                  About
+                </Link>
               </>
             )}
 
@@ -146,7 +211,15 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
               </button>
 
               {mobileContactOpen && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', paddingLeft: '1rem', marginTop: '0.5rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.75rem',
+                    paddingLeft: '1rem',
+                    marginTop: '0.5rem',
+                  }}
+                >
                   {contactDropdownItems.map((item, idx) => (
                     <a
                       key={idx}
@@ -178,21 +251,18 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
       <nav
         style={{
           display: 'flex',
-          gap: '2rem',
+          gap: '2.25rem',
           alignItems: 'center',
+          justifyContent: 'flex-end',
+          marginLeft: 'auto',
           fontFamily: "'Montserrat', sans-serif",
-          fontSize: '13px',
-          letterSpacing: '1.2px',
+          fontSize: '14px',
+          letterSpacing: '0.3px',
         }}
         className="nsh-desktop-nav"
       >
         {desktopNavItems.map(({ link }, i) => (
-          <CMSLink
-            key={i}
-            {...link}
-            appearance="inline"
-            className="nsh-header-nav-link"
-          />
+          <CMSLink key={i} {...link} appearance="inline" className="nsh-header-nav-link" />
         ))}
 
         {/* Contact dropdown */}
@@ -210,7 +280,7 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
               color: '#ffffff',
               fontFamily: "'Montserrat', sans-serif",
               fontSize: '14px',
-              letterSpacing: '0.5px',
+              letterSpacing: '0.3px',
               fontWeight: '400',
               cursor: 'pointer',
               padding: '10px 0',
@@ -243,12 +313,13 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
               position: 'absolute',
               top: '100%',
               right: 0,
-              backgroundColor: '#0d0f0e',
-              minWidth: '280px',
-              padding: '10px 0',
+              backgroundColor: '#050505',
+              minWidth: '290px',
+              padding: '20px',
               borderRadius: '0px',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              boxShadow: '0 16px 40px rgba(0,0,0,0.7)',
+              border: 'none',
+              borderTop: '1px solid rgba(255, 255, 255, 0.4)',
+              boxShadow: '0 20px 48px rgba(0,0,0,0.85)',
               zIndex: 99999,
               opacity: dropdownOpen ? 1 : 0,
               pointerEvents: dropdownOpen ? 'all' : 'none',
@@ -263,7 +334,7 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
                 className="nsh-dropdown-item"
                 style={{
                   display: 'block',
-                  padding: '10px 20px',
+                  padding: '10px 24px',
                   color: '#ffffff',
                   fontSize: '14px',
                   textDecoration: 'none',
@@ -329,7 +400,7 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
           text-decoration: none !important;
           transition: color 0.2s ease !important;
           background: transparent !important;
-          padding: 0 !important;
+          padding: 5px !important;
           height: auto !important;
           box-shadow: none !important;
           border: none !important;
@@ -364,4 +435,3 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
     </>
   )
 }
-
