@@ -27,10 +27,10 @@ ARG PAYLOAD_SECRET
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
-# ENV NEXT_TELEMETRY_DISABLED 1
+ENV PAYLOAD_SECRET="build_secret_key_docker"
+ENV DATABASE_URL="file:./my-payload-app.db"
+ENV PAYLOAD_DB_PUSH="true"
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
