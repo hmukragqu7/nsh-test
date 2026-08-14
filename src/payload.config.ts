@@ -1,3 +1,4 @@
+import { postgresAdapter } from '@payloadcms/db-postgres'
 import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import sharp from 'sharp'
@@ -22,6 +23,25 @@ import { getServerSideURL } from './utilities/getURL'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+const postgresUrl = process.env.DATABASE_URI || process.env.POSTGRES_URL
+const isPostgres = Boolean(
+  postgresUrl || (process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith('postgres'))
+)
+
+const db = isPostgres
+  ? postgresAdapter({
+      pool: {
+        connectionString: postgresUrl || process.env.DATABASE_URL || '',
+      },
+      push: process.env.PAYLOAD_DB_PUSH ? process.env.PAYLOAD_DB_PUSH === 'true' : process.env.NODE_ENV !== 'production',
+    })
+  : sqliteAdapter({
+      client: {
+        url: process.env.DATABASE_URL || 'file:./my-payload-app.db',
+      },
+      push: process.env.PAYLOAD_DB_PUSH ? process.env.PAYLOAD_DB_PUSH === 'true' : process.env.NODE_ENV !== 'production',
+    })
 
 export default buildConfig({
   admin: {
@@ -57,12 +77,7 @@ export default buildConfig({
     },
   },
   editor: defaultLexical,
-  db: sqliteAdapter({
-    client: {
-      url: process.env.DATABASE_URL || '',
-    },
-    push: process.env.PAYLOAD_DB_PUSH ? process.env.PAYLOAD_DB_PUSH === 'true' : process.env.NODE_ENV !== 'production',
-  }),
+  db,
   email: nodemailerAdapter({
     defaultFromAddress: process.env.SMTP_FROM || 'info@novelsignaturehomes.com',
     defaultFromName: process.env.SMTP_FROM_NAME || 'Novel Signature Homes',
