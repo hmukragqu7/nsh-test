@@ -17,6 +17,8 @@ type Args = {
   }>
 }
 
+const PAGE_LIMIT = 12
+
 export default async function Page({ params: paramsPromise }: Args) {
   const { pageNumber } = await paramsPromise
   const payload = await getPayload({ config: configPromise })
@@ -25,13 +27,19 @@ export default async function Page({ params: paramsPromise }: Args) {
 
   if (!Number.isInteger(sanitizedPageNumber)) notFound()
 
-  const posts = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit: 12,
-    page: sanitizedPageNumber,
-    overrideAccess: false,
-  })
+  let posts = { docs: [], page: 1, totalPages: 1, totalDocs: 0 } as any
+
+  try {
+    posts = await payload.find({
+      collection: 'posts',
+      depth: 1,
+      limit: PAGE_LIMIT,
+      page: sanitizedPageNumber,
+      overrideAccess: false,
+    })
+  } catch (error) {
+    console.warn('[PostsPage] Could not query posts collection:', error)
+  }
 
   return (
     <div className="pt-24 pb-24">
@@ -46,7 +54,7 @@ export default async function Page({ params: paramsPromise }: Args) {
         <PageRange
           collection="posts"
           currentPage={posts.page}
-          limit={12}
+          limit={PAGE_LIMIT}
           totalDocs={posts.totalDocs}
         />
       </div>
@@ -77,7 +85,7 @@ export async function generateStaticParams() {
       overrideAccess: false,
     })
 
-    const totalPages = Math.ceil(totalDocs / 10)
+    const totalPages = Math.ceil(totalDocs / PAGE_LIMIT)
 
     const pages: { pageNumber: string }[] = []
 
