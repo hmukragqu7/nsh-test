@@ -5,6 +5,8 @@ import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 import React from 'react'
 
+import NextTopLoader from 'nextjs-toploader'
+
 import { AdminBar } from '@/components/AdminBar'
 import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
@@ -58,6 +60,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <Providers>
+          <NextTopLoader color="#C5A880" showSpinner={false} height={3} crawl={true} speed={200} shadow="0 0 10px #C5A880,0 0 5px #C5A880" />
           <Header />
           {children}
           <Footer />
