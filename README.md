@@ -1,7 +1,7 @@
 # 📚 Novel Signature Homes - Complete Developer & Beginner's Guide
 
 > **Project:** `my-payload-app` (Novel Signature Homes)  
-> **Tech Stack:** Next.js 16 (App Router) + Payload CMS 3.86 (Embedded) + PostgreSQL (`@payloadcms/db-postgres`) & SQLite (`my-payload-app.db`) + Lexical Rich Text Editor + TailwindCSS + Vitest + Playwright  
+> **Tech Stack:** Next.js 16 (App Router) + Payload CMS 3.86 (Embedded) + Render PostgreSQL (`@payloadcms/db-postgres`) + SQLite fallback (`my-payload-app.db`) + Lexical Rich Text Editor + TailwindCSS + Vitest + Playwright  
 
 ---
 
@@ -40,12 +40,12 @@ Payload CMS is a headless Content Management System built with TypeScript and No
 
 ---
 
-## 2. Database Architecture & PostgreSQL Benefits
+## 2. Database Architecture & PostgreSQL Configuration
 
 This project is built with **Smart Dual-Database Support** in [src/payload.config.ts](file:///home/novel/my-payload-app/src/payload.config.ts):
 
-- **Local Development**: Uses `@payloadcms/db-sqlite` with local `my-payload-app.db` file for instant, zero-configuration local dev setup.
-- **Production Deployment**: Supports `@payloadcms/db-postgres` for high-performance cloud databases (Render PostgreSQL, Supabase, Neon, AWS RDS).
+- **Active Database (Production & Dev)**: Connected to cloud **Render PostgreSQL** (`NSH_DB`) via `@payloadcms/db-postgres` using the `DATABASE_URI` environment variable.
+- **Offline Backup**: Supports `@payloadcms/db-sqlite` with local `my-payload-app.db` file as an offline fallback.
 
 ### ⚡ Key Benefits of PostgreSQL
 
@@ -78,20 +78,22 @@ flowchart TD
     end
 
     subgraph Storage
-        E[(SQLite DB: my-payload-app.db)]
+        E[(Render PostgreSQL DB: nsh_db)]
         F[Media Directory /public/media]
+        G[(SQLite Offline Backup: my-payload-app.db)]
     end
 
     A -->|Server Components / Direct Local API| D
     B -->|Admin UI / React Components| C
     C -->|Adapter Bridge| D
-    D -->|SQLite Adapter| E
+    D -->|PostgreSQL Adapter| E
     D -->|Sharp / Image Processing| F
 ```
 
 ### Key Technical Characteristics
 - **Zero HTTP Overhead**: Frontend Server Components retrieve database documents using Payload's `Local API` directly within Node.js execution.
-- **SQLite Database**: Data is stored in `my-payload-app.db` at the project root, pre-populated with real estate listings, blogs, pages, and categories.
+- **Render PostgreSQL Cloud Database**: Data is persistently stored in `nsh_db` hosted on Render PostgreSQL.
+- **SQLite Offline Backup**: Local data snapshot retained in `my-payload-app.db` at the project root for offline reference.
 - **Automatic Image Optimization**: Next.js `next/image` is configured with wildcard patterns and `/media/**` paths to deliver high-performance image assets.
 - **Fail-Safe Route Guards**: All static dynamic page routes (`/properties/[slug]`, `/posts/[slug]`, etc.) include try-catch error boundaries to handle database initialization seamlessly during cold builds.
 
@@ -505,12 +507,12 @@ docker run -p 3000:3000 \
 
 1. **Environment Variables on Cloud Provider**:
    - `PAYLOAD_SECRET`: Set a secure secret key string.
-   - `DATABASE_URL`: `file:./my-payload-app.db` (or remote PostgreSQL URI if using `@payloadcms/db-postgres`).
+   - `DATABASE_URI`: Your Render PostgreSQL connection string (`postgresql://nsh_db_user:***@dpg-da1uqmrutv3s73b57qag-a.oregon-postgres.render.com/nsh_db?sslmode=require`).
    - `PAYLOAD_DB_PUSH`: `false` (in production).
    - `NEXT_PUBLIC_SERVER_URL`: Your live domain (e.g. `https://your-domain.onrender.com`).
 
-2. **Pre-populated Database & Media**:
-   - `my-payload-app.db` and `/public/media` are bundled in Git, ensuring zero-configuration startup upon initial cloud deployment.
+2. **Persistent Cloud Storage**:
+   - All website content, properties, and admin data are stored in Render PostgreSQL (`NSH_DB`). `my-payload-app.db` is preserved in the repository as an offline reference.
 
 ---
 
