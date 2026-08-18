@@ -23,7 +23,10 @@ import { getServerSideURL } from './utilities/getURL'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-const postgresUrl = process.env.DATABASE_URI || process.env.POSTGRES_URL || process.env.DATABASE_URL || ''
+const defaultPostgresUrl =
+  'postgresql://nsh_db_user:YdLF8z23wEKxOz6iREludj6i0zCWR1zI@dpg-da1uqmrutv3s73b57qag-a.oregon-postgres.render.com/nsh_db?uselibpqcompat=true&sslmode=require'
+
+const postgresUrl = process.env.DATABASE_URI || process.env.POSTGRES_URL || process.env.DATABASE_URL || defaultPostgresUrl
 
 const db = postgresAdapter({
   pool: {
@@ -31,6 +34,21 @@ const db = postgresAdapter({
   },
   push: process.env.PAYLOAD_DB_PUSH ? process.env.PAYLOAD_DB_PUSH === 'true' : process.env.NODE_ENV !== 'production',
 })
+
+const smtpUser = process.env.SMTP_USER
+const smtpPass = process.env.SMTP_PASS
+
+const transportOptions: any = {
+  host: process.env.SMTP_HOST || 'sandbox.smtp.mailtrap.io',
+  port: Number(process.env.SMTP_PORT || 2525),
+}
+
+if (smtpUser && smtpPass) {
+  transportOptions.auth = {
+    user: smtpUser,
+    pass: smtpPass,
+  }
+}
 
 export default buildConfig({
   admin: {
@@ -70,14 +88,7 @@ export default buildConfig({
   email: nodemailerAdapter({
     defaultFromAddress: process.env.SMTP_FROM || 'info@novelsignaturehomes.com',
     defaultFromName: process.env.SMTP_FROM_NAME || 'Novel Signature Homes',
-    transportOptions: {
-      host: process.env.SMTP_HOST || 'sandbox.smtp.mailtrap.io',
-      port: Number(process.env.SMTP_PORT || 2525),
-      auth: {
-        user: process.env.SMTP_USER || '',
-        pass: process.env.SMTP_PASS || '',
-      },
-    },
+    transportOptions,
   }),
   collections: [Pages, Properties, Blogs, Posts, Media, Categories, Users, CF7Tracker],
   cors: [getServerSideURL(), '*'].filter(Boolean),
