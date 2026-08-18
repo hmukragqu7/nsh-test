@@ -314,35 +314,151 @@ Here is a practical, step-by-step walkthrough for adding a new field or feature 
 
 CMS schemas live in `src/collections/` or `src/blocks/`.
 
-#### Example: Adding a `locationSummary` field to [src/collections/Properties.ts](file:///home/novel/my-payload-app/src/collections/Properties.ts)
+#### 📂 Target Collection Files:
+- **Property Template / Collection**: [src/collections/Properties.ts](file:///home/novel/my-payload-app/src/collections/Properties.ts)
+- **Blog Template / Collection**: [src/collections/Blogs/index.ts](file:///home/novel/my-payload-app/src/collections/Blogs/index.ts)
+- **Posts Template / Collection**: [src/collections/Posts/index.ts](file:///home/novel/my-payload-app/src/collections/Posts/index.ts)
 
-Open `src/collections/Properties.ts` and add your field into the `fields` array:
+---
+
+### 🛠️ Detailed Guide: How to Add Fields to Property & Blog Templates
+
+#### 1. Common Field Types Reference
+
+| Field Type | Best For | Example Payload Definition |
+| :--- | :--- | :--- |
+| **`text`** | Short text strings | `{ name: 'virtualTourUrl', type: 'text', label: '3D Virtual Tour URL' }` |
+| **`textarea`** | Multi-line text | `{ name: 'locationNotes', type: 'textarea', label: 'Location Notes' }` |
+| **`number`** | Amounts, sizes | `{ name: 'garageCapacity', type: 'number', label: 'Garage Capacity' }` |
+| **`checkbox`** | Yes/No toggles | `{ name: 'isFeatured', type: 'checkbox', label: 'Featured Property' }` |
+| **`select`** | Dropdown choices | `{ name: 'viewType', type: 'select', options: [{ label: 'Ocean', value: 'ocean' }] }` |
+| **`upload`** | Images, PDFs, media | `{ name: 'brochurePdf', type: 'upload', relationTo: 'media', label: 'Downloadable Brochure' }` |
+| **`relationship`** | Links to other collections | `{ name: 'relatedBlogs', type: 'relationship', relationTo: 'blogs', hasMany: true }` |
+| **`group`** | Nested object of fields | `{ name: 'brokerInfo', type: 'group', fields: [{ name: 'name', type: 'text' }] }` |
+| **`array`** | Repeatable list of items | `{ name: 'floorPlans', type: 'array', fields: [{ name: 'title', type: 'text' }] }` |
+
+---
+
+#### 2. Adding a New Field to the **Property Template** ([src/collections/Properties.ts](file:///home/novel/my-payload-app/src/collections/Properties.ts))
+
+Open `src/collections/Properties.ts` and locate the `fields` array or the target tab (e.g. `Content` tab).
+
+##### Example: Adding a `virtualTourUrl` & `communityAmenities` field
 
 ```typescript
 // src/collections/Properties.ts
-import type { CollectionConfig } from 'payload'
-
 export const Properties: CollectionConfig = {
   slug: 'properties',
+  fields: [
+    // ── SIDEBAR FIELDS (e.g. status, featured) ──────────────────────────
+    {
+      name: 'isFeatured',
+      type: 'checkbox',
+      label: 'Highlight on Homepage',
+      admin: { position: 'sidebar' },
+    },
+
+    // ── MAIN CONTENT TAB ────────────────────────────────────────────────
+    {
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Content',
+          fields: [
+            { name: 'name', type: 'text', required: true, label: 'Name' },
+            { name: 'price', type: 'text', label: 'Price' },
+
+            // 👇 NEW FIELD 1: Simple text field for Virtual Tour
+            {
+              name: 'virtualTourUrl',
+              type: 'text',
+              label: '3D Matterport / Virtual Tour URL',
+              admin: {
+                placeholder: 'https://my.matterport.com/show/?m=...',
+                description: 'Embed link for 3D walkthrough tour',
+              },
+            },
+
+            // 👇 NEW FIELD 2: Group field for Custom Specifications
+            {
+              name: 'additionalSpecs',
+              type: 'group',
+              label: 'Additional Specifications',
+              fields: [
+                { name: 'hoaFee', type: 'text', label: 'HOA Fee (e.g. $450/mo)' },
+                { name: 'taxRate', type: 'text', label: 'Property Tax Rate' },
+                { name: 'constructionYear', type: 'text', label: 'Year Constructed' },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+}
+```
+
+---
+
+#### 3. Adding a New Field to the **Blog Template** ([src/collections/Blogs/index.ts](file:///home/novel/my-payload-app/src/collections/Blogs/index.ts))
+
+Open `src/collections/Blogs/index.ts` and edit the `fields` array.
+
+##### Example: Adding a `subtitle` & `videoEmbedUrl` field
+
+```typescript
+// src/collections/Blogs/index.ts
+export const Blogs: CollectionConfig<'blogs'> = {
+  slug: 'blogs',
   fields: [
     {
       name: 'title',
       type: 'text',
       required: true,
     },
-    // NEW FIELD ADDITION:
     {
-      name: 'locationSummary',
-      type: 'text',
-      label: 'Location Summary (e.g. "Palm Jumeirah, Dubai")',
-      admin: {
-        placeholder: 'Enter location neighborhood...',
-      },
-    },
-    {
-      name: 'price',
-      type: 'number',
-      required: true,
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Content',
+          fields: [
+            {
+              name: 'heroImage',
+              type: 'upload',
+              relationTo: 'media',
+            },
+            
+            // 👇 NEW FIELD 1: Subtitle
+            {
+              name: 'subtitle',
+              type: 'text',
+              label: 'Blog Subtitle',
+              admin: {
+                placeholder: 'Enter a catchy secondary headline...',
+              },
+            },
+
+            {
+              name: 'excerpt',
+              type: 'textarea',
+              label: 'Excerpt',
+            },
+
+            // 👇 NEW FIELD 2: Video Embed URL
+            {
+              name: 'videoEmbedUrl',
+              type: 'text',
+              label: 'YouTube / Vimeo Video Embed Link',
+            },
+
+            {
+              name: 'content',
+              type: 'richText',
+              required: true,
+            },
+          ],
+        },
+      ],
     },
   ],
 }
