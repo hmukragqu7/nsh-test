@@ -2,6 +2,8 @@ import React from 'react'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'The Story Behind Our Homes | Novel Signature Homes',
   description:

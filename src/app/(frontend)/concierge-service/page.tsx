@@ -4,6 +4,8 @@ import configPromise from '@payload-config'
 import Link from 'next/link'
 import { ConciergeContactForm } from '@/components/ConciergeContactForm'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'Concierge Service | Personalized Luxury Home Support | Novel Signature Homes',
   description:

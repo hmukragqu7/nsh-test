@@ -5,6 +5,8 @@ import configPromise from '@payload-config'
 import RichText from '@/components/RichText'
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'Terms and Conditions - Novel Signature Homes',
   description:
