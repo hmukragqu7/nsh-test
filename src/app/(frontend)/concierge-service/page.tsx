@@ -375,18 +375,40 @@ export default async function ConciergePage() {
           />
 
           <div className="services-grid">
-            {servicesList.map((item: any, idx: number) => (
-              <div key={idx} className="service-icon-item">
-                <div className="service-icon-img-wrap">
-                  <img
-                    src={item.icon || '/media/concierge/loan.webp'}
-                    alt={item.title}
-                    className="service-icon-img"
-                  />
+            {servicesList.map((item: any, idx: number) => {
+              const defaultIconNames = [
+                'loan.webp',
+                'delivery.webp',
+                'documents.webp',
+                'human-resources.webp',
+                'couch.webp',
+                'curtain.webp',
+                'gardening.webp',
+                'tap.webp',
+                'wrench.webp',
+                'employee.webp',
+              ]
+
+              let iconSrc = `/media/concierge/${defaultIconNames[idx] || 'loan.webp'}`
+              if (typeof item.icon === 'object' && item.icon?.url) {
+                iconSrc = item.icon.url
+              } else if (typeof item.icon === 'string' && (item.icon.startsWith('/') || item.icon.startsWith('http'))) {
+                iconSrc = item.icon
+              }
+
+              return (
+                <div key={idx} className="service-icon-item">
+                  <div className="service-icon-img-wrap">
+                    <img
+                      src={iconSrc}
+                      alt={item.title}
+                      className="service-icon-img"
+                    />
+                  </div>
+                  <h3 className="service-icon-title">{item.title}</h3>
                 </div>
-                <h3 className="service-icon-title">{item.title}</h3>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
