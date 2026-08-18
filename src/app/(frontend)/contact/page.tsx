@@ -1,5 +1,7 @@
 import BuyAHomePage from '../buy-a-home/page'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'Contact Us - Novel Signature Homes',
   description:

@@ -19,28 +19,7 @@ export const dynamic = 'force-dynamic'
 export const dynamicParams = true
 
 export async function generateStaticParams() {
-  try {
-    const payload = await getPayload({ config: configPromise })
-    const posts = await payload.find({
-      collection: 'posts',
-      draft: false,
-      limit: 1000,
-      overrideAccess: false,
-      pagination: false,
-      select: {
-        slug: true,
-      },
-    })
-
-    const params = posts.docs.map(({ slug }) => {
-      return { slug }
-    })
-
-    return params
-  } catch (error) {
-    console.warn('[generateStaticParams] Could not fetch post slugs for static generation:', error)
-    return []
-  }
+  return []
 }
 
 type Args = {
